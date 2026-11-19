@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Khu Rừng Ngủ Quên</title>
+<meta name="theme-color" content="#0b140f">
+<meta name="description" content="Game giải đố kiểu Rusty Lake: đánh thức khu rừng đã ngủ quên sáu mươi năm.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rừng Ngủ Quên">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,700;1,500&family=Cormorant+Garamond:ital,wght@0,600;1,500&family=Be+Vietnam+Pro:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;background:#04060a;overflow:hidden;font-family:'Be Vietnam Pro',system-ui,sans-serif;color:#eadfca;user-select:none}
+#menu{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:1.4em;padding:3% 4%;overflow:auto;
+  background:radial-gradient(ellipse at 50% 30%,rgba(40,70,40,.5),rgba(2,4,6,.98) 70%),#04060a}
+#menu canvas{position:absolute;inset:0;width:100%;height:100%;z-index:0}
+#menu>*:not(canvas){position:relative;z-index:1}
+h1{font:600 clamp(32px,6vw,78px) 'Cormorant Garamond',serif;letter-spacing:.08em;color:#f4e4b0;text-shadow:0 0 40px rgba(255,200,90,.5);text-align:center}
+.sub{font:italic 500 clamp(13px,1.7vw,20px) Lora,serif;opacity:.8;text-align:center}
+#chs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.9em;width:min(980px,100%)}
+.ch{position:relative;border:1px solid rgba(240,220,160,.25);border-radius:10px;padding:1em 1.1em;background:rgba(14,18,14,.72);cursor:pointer;transition:transform .15s,border-color .15s;min-height:7.4em}
+.ch:hover:not(.lock){transform:translateY(-2px);border-color:rgba(255,220,140,.7)}
+.ch .n{font:600 .78em 'Be Vietnam Pro';letter-spacing:.14em;opacity:.65;text-transform:uppercase}
+.ch .t{font:600 clamp(17px,1.9vw,24px) 'Cormorant Garamond',serif;color:#ffe6b0;margin:.15em 0 .3em}
+.ch .d{font:italic 500 clamp(11px,1.05vw,13px)/1.5 Lora,serif;opacity:.75}
+.ch .st{position:absolute;top:.8em;right:.9em;font-size:.8em;opacity:.85}
+.ch.lock{cursor:default;opacity:.45}.ch.done{border-color:rgba(150,230,150,.45)}
+.ch.cur{border-color:#ffd27a;box-shadow:0 0 22px rgba(255,200,100,.25)}
+.big{border:0;border-radius:4px;padding:.8em 2.2em;font:600 clamp(12px,1.3vw,16px) 'Be Vietnam Pro',sans-serif;cursor:pointer;background:#3e6a2a;color:#f6f0d8;box-shadow:0 0 25px rgba(160,230,110,.35);letter-spacing:.05em}
+.big:hover{background:#4e8034}
+#stats{font-size:clamp(11px,1.1vw,14px);opacity:.75;text-align:center}
+#reset{background:none;border:0;color:#cbb;opacity:.45;font-size:12px;cursor:pointer;text-decoration:underline}
+#game{position:absolute;inset:0;display:none}
+#game iframe{width:100%;height:100%;border:0;display:block;background:#000}
+#home{position:absolute;left:10px;bottom:10px;z-index:5;padding:.35em .7em;border-radius:6px;background:rgba(12,8,6,.6);border:1px solid rgba(200,160,100,.25);color:#eadfca;font:600 12px 'Be Vietnam Pro';cursor:pointer;opacity:.6}
+#home:hover{opacity:1}
+#confirm{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.6);z-index:9}
+#confirm div{background:#1a140e;border:1px solid rgba(240,200,140,.3);border-radius:8px;padding:1.4em 1.8em;text-align:center;font:500 15px Lora,serif;max-width:420px}
+#confirm button{margin:1em .4em 0;padding:.5em 1.2em;border-radius:16px;border:1px solid rgba(240,200,140,.4);background:none;color:#f0e0c0;cursor:pointer;font:600 13px 'Be Vietnam Pro'}
+#toast{position:fixed;left:50%;top:14px;transform:translate(-50%,-140%);transition:transform .4s;z-index:20;background:rgba(20,16,8,.95);border:1px solid rgba(255,214,140,.5);border-radius:22px;padding:.6em 1.2em;font:600 14px 'Be Vietnam Pro',sans-serif;color:#ffe6b0;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.5);white-space:nowrap}
+#toast{visibility:hidden}#toast.on{transform:translate(-50%,0);visibility:visible}
+#news{display:none;background:rgba(255,210,120,.12);border:1px solid rgba(255,210,120,.45);border-radius:20px;padding:.4em 1.1em;font:600 13px 'Be Vietnam Pro';color:#ffe2a0}
+#install{display:none;background:none;border:1px solid rgba(240,220,160,.45);color:#f4e4b0;border-radius:18px;padding:.45em 1.2em;font:600 13px 'Be Vietnam Pro';cursor:pointer}
+#ios{display:none;font-size:12px;opacity:.7;text-align:center;max-width:520px}
+#rotate{position:fixed;inset:0;z-index:30;display:none;flex-direction:column;align-items:center;justify-content:center;gap:1em;background:#04060a;color:#f4e4b0;text-align:center;padding:10%;font:500 16px Lora,serif}
+#rotate .ph{width:46px;height:78px;border:3px solid #f4e4b0;border-radius:9px;animation:rot 2s ease-in-out infinite}
+@keyframes rot{0%,20%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
+@media (orientation:portrait) and (max-width:900px){#rotate{display:flex}}
+#ver{position:absolute;right:12px;bottom:8px;font-size:11px;opacity:.35;z-index:1}
+#menu::before,#menu::after{content:'';flex:1 0 0}
+@media (max-height:520px){h1{font-size:34px}.sub{font-size:13px}#menu{gap:.7em}.ch{min-height:0;padding:.55em .8em}.ch .d{display:none}.big{padding:.6em 1.8em}}
+@media (max-width:700px){#chs{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<div id="menu">
+  <canvas id="bg"></canvas>
+  <h1>KHU RỪNG NGỦ QUÊN</h1>
+  <p class="sub">Sáu chương, ba đêm và một ngày quanh rằm tháng Tám</p>
+  <p id="news"></p>
+  <button class="big" id="cont">CHƠI</button>
+  <button id="install">⬇ Cài game vào máy</button>
+  <p id="ios">Trên iPhone/iPad: mở bằng Safari, bấm nút Chia sẻ rồi chọn «Thêm vào MH chính» để cài game.</p>
+  <div id="chs"></div>
+  <p id="stats"></p>
+  <button id="reset">Xóa tiến độ, chơi lại từ đầu</button>
+  <span id="ver"></span>
+</div>
+<div id="game"><iframe id="fr" allow="autoplay"></iframe><button id="home">☰ Chương</button></div>
+<div id="confirm"><div><p>Quay về danh sách chương? Tiến độ của chương đang chơi dở sẽ không được lưu.</p><button id="yes">Về danh sách</button><button id="no">Chơi tiếp</button></div></div>
+<div id="toast"></div>
+<div id="rotate"><div class="ph"></div><p>Xoay ngang điện thoại để chơi nhé.</p></div>
+<script>
+const VERSION='1.0.0';
+const CH=[{n:1,t:'Khu Rừng Ngủ Quên',d:'Hoàng hôn. Đánh thức khu rừng và vị Thần rừng đang ngủ.',col:'Hạt giống sáng',file:'chapters/ch1.html'},{n:2,t:'Hồ Gương',d:'Đêm 14. Mặt hồ soi những gì rừng đã quên.',col:'Mảnh phản chiếu',file:'chapters/ch2.html'},{n:3,t:'Đêm Rằm',d:'Căn nhà trong gốc đa và chiếc đèn ông sao.'},
+  {n:4,t:'Đèn Kéo Quân',d:'Gác xép bí mật, bốn hình nhân còn thiếu.'},{n:5,t:'Lời Hẹn',d:'Ngày 16. Mười hai lá thư bị trả về.'},{n:6,t:'Thượng Nguồn',d:'Nơi đốm sáng xanh chờ được gọi tên.'}];
+const AVAIL=CH.map(c=>!!c.file);
+const KEY='krnq_progress_v1';let PG={done:{},found:{},letters:{},seen:0};
+try{const s=localStorage.getItem(KEY);if(s)PG=Object.assign(PG,JSON.parse(s))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(PG))}catch(e){}};
+const unlocked=n=>AVAIL[n-1]&&(n===1||PG.done[n-1]);
+const current=()=>{for(const c of CH)if(unlocked(c.n)&&!PG.done[c.n])return c.n;let m=1;CH.forEach(c=>{if(unlocked(c.n))m=c.n});return m};
+function menu(){document.getElementById('game').style.display='none';document.getElementById('fr').src='about:blank';document.getElementById('menu').style.display='flex';
+  const box=document.getElementById('chs');box.innerHTML='';const cur=current();
+  CH.forEach(c=>{const d=document.createElement('div'),ok=unlocked(c.n);d.className='ch'+(ok?'':' lock')+(PG.done[c.n]?' done':'')+(ok&&c.n===cur&&!PG.done[c.n]?' cur':'');
+    d.innerHTML=`<div class="n">Chương ${c.n}</div><div class="t">${c.t}</div><div class="d">${AVAIL[c.n-1]?c.d:'Sắp ra mắt'}</div><div class="st">${PG.done[c.n]?'✓ '+(c.col?`${PG.found[c.n]||0}/3`:''):ok?'▶':'🔒'}</div>`;
+    if(ok)d.onclick=()=>play(c.n);box.appendChild(d)});
+  const anyDone=Object.keys(PG.done).length;document.getElementById('cont').textContent=anyDone?`CHƠI TIẾP · CHƯƠNG ${cur}`:'BẮT ĐẦU';
+  const L=['K','H','Ê'].map(x=>PG.letters[x]?x:'·').join(' ');document.getElementById('stats').innerHTML=anyDone?`Đã qua ${anyDone}/6 chương · Mảnh chữ sưu tầm: <b>${L}</b>`:'Tiến độ được lưu tự động trên trình duyệt này.'}
+function play(n){if(!AVAIL[n-1]){menu();return}document.getElementById('menu').style.display='none';document.getElementById('game').style.display='block';
+  const fr=document.getElementById('fr');fr.src=CH[n-1].file;fr.dataset.ch=n;fr.onload=()=>{try{fr.contentWindow.focus()}catch(e){}}}
+addEventListener('message',e=>{const m=e.data||{};if(m.type==='chapterDone'){PG.done[m.ch]=1;PG.found[m.ch]=Math.max(PG.found[m.ch]||0,m.found||0);if(m.letter)PG.letters[m.letter]=1;save();
+    try{const w=document.getElementById('fr').contentWindow,b=w.document.getElementById('next');if(b&&AVAIL[m.ch]){b.style.display='inline-block'}else if(b)b.style.display='none';const s=w.document.getElementById('soon');if(s&&!AVAIL[m.ch])s.textContent='Chương '+(m.ch+1)+' · sắp ra mắt'}catch(_){}}
+  if(m.type==='next'){const n=(m.ch||0)+1;if(AVAIL[n-1])play(n);else menu()}});
+document.getElementById('cont').onclick=()=>play(current());
+document.getElementById('home').onclick=()=>{document.getElementById('confirm').style.display='flex'};
+document.getElementById('yes').onclick=()=>{document.getElementById('confirm').style.display='none';menu()};
+document.getElementById('no').onclick=()=>{document.getElementById('confirm').style.display='none'};
+document.getElementById('reset').onclick=()=>{if(confirm('Xóa toàn bộ tiến độ?')){PG={done:{},found:{},letters:{},seen:AVAIL.filter(Boolean).length};save();menu()}};
+// fireflies on the menu background
+(()=>{const c=document.getElementById('bg'),g=c.getContext('2d');let W,H;const F=Array.from({length:40},(_,i)=>({x:Math.random(),y:Math.random(),p:Math.random()*6,s:.3+Math.random()*.7,gold:i===0}));
+  function rs(){W=c.width=c.clientWidth;H=c.height=c.clientHeight}rs();addEventListener('resize',rs);
+  (function f(t){if(document.getElementById('menu').style.display!=='none'){g.clearRect(0,0,W,H);F.forEach(o=>{const x=(o.x+Math.sin(t/4000*o.s+o.p)*.04)*W,y=(o.y+Math.cos(t/5000*o.s+o.p)*.04)*H,a=.3+.3*Math.sin(t/600*o.s+o.p),r=o.gold?7:4;
+    const gr=g.createRadialGradient(x,y,0,x,y,r*4);gr.addColorStop(0,o.gold?`rgba(255,230,140,${a+.4})`:`rgba(140,255,220,${a})`);gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(x-r*4,y-r*4,r*8,r*8)})}requestAnimationFrame(f)})(0)})();
+
+// ---- new-chapter notice
+(()=>{const n=AVAIL.filter(Boolean).length,news=document.getElementById('news');if(PG.seen&&n>PG.seen){news.textContent='✨ Mới ra mắt: '+CH.filter((c,i)=>AVAIL[i]&&c.n>PG.seen).map(c=>'Chương '+c.n+' · '+c.t).join(', ');news.style.display='block'}PG.seen=n;save()})();
+document.getElementById('ver').textContent='Phiên bản '+VERSION;
+// ---- install button (Android / desktop Chrome, Edge)
+let deferred=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;document.getElementById('install').style.display='inline-block'});
+document.getElementById('install').onclick=async()=>{if(!deferred)return;deferred.prompt();await deferred.userChoice;deferred=null;document.getElementById('install').style.display='none'};
+const standalone=matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches||navigator.standalone;
+if(/iphone|ipad|ipod/i.test(navigator.userAgent)&&!standalone)document.getElementById('ios').style.display='block';
+// ---- service worker: offline play + automatic updates
+const toast=(t,fn)=>{const el=document.getElementById('toast');el.textContent=t;el.onclick=fn;el.classList.add('on')};
+if('serviceWorker' in navigator&&location.protocol!=='file:'){navigator.serviceWorker.register('sw.js').then(reg=>{
+    const ask=w=>toast('✨ Game có bản mới. Bấm để cập nhật',()=>{w.postMessage('skip');document.getElementById('toast').textContent='Đang cập nhật…'});
+    if(reg.waiting&&navigator.serviceWorker.controller)ask(reg.waiting);
+    reg.addEventListener('updatefound',()=>{const w=reg.installing;w.addEventListener('statechange',()=>{if(w.state==='installed'&&navigator.serviceWorker.controller)ask(w)})});
+    setInterval(()=>reg.update().catch(()=>{}),30*60*1000)}).catch(()=>{});
+  let reloaded=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloaded)return;reloaded=true;location.reload()})}
+// ---- try landscape lock when playing (Android, installed app)
+const _play=play;play=n=>{_play(n);try{if(standalone&&screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(()=>{})}catch(e){}};
+menu();
+</script>
+</body>
+</html>
