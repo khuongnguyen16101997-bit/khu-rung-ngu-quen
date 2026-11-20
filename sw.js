@@ -1,6 +1,6 @@
 // Khu Rừng Ngủ Quên — service worker
 // MỖI LẦN CẬP NHẬT GAME: tăng số VERSION bên dưới (và trong index.html), thêm file chương mới vào FILES.
-const VERSION = '1.0.0';
+const VERSION = '1.0.1';
 const CACHE = 'krnq-' + VERSION, FONTS = 'krnq-fonts';
 const FILES = [
   './', 'index.html', 'manifest.webmanifest',

@@ -286,7 +286,7 @@ function poly(g,pts){g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.mo
 // ================= Chương 2: Hồ Gương (đêm 14) =================
 const MOON=[1560,170],HORIZ=520;
 const P=[{x:230,y:700,h:112},{x:720,y:622,h:96},{x:1830,y:650,h:112}];P.forEach(p=>{p.tx=p.x;p.ty=p.y-p.h-8});
-const TGT=[600,772],GLN=[790,836],GLF=[905,636];
+const TGT=[600,772],GLN=[722,814],GLF=[905,636];
 const MUD=[300,992],COCS=[598,968],WEB=[1640,770],HUT=[1052,586];
 const GAPU=[5,10,15].map(i=>i*.044),GAPN=[4,3,2];
 function pier(u){return{cx:lerp(880,1000,u),y:lerp(1040,610,u),w:lerp(300,90,u)}}
@@ -402,7 +402,7 @@ function beams(){const {seg}=chain();layer(1);ctx.globalCompositeOperation='ligh
     for(const [lw,al] of[[w*3,a*.25],[w,a*.6],[1.4,a]]){ctx.strokeStyle=`rgba(210,230,255,${al})`;ctx.lineWidth=lw;ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke()}
     if(i>0)ctx.drawImage(SOFT,x1-14,y1-14,28,28)});
   if(S.lit){const k=ss(clamp((T-S.litT)/2));ctx.globalAlpha=.6*k;ctx.drawImage(SOFT,TGT[0]-200,TGT[1]-60,400,120);ctx.globalAlpha=k*(.5+.2*Math.sin(T*2));ctx.drawImage(TEAL,TGT[0]-110,TGT[1]-36,220,72);
-    const gl=(x,y)=>{ctx.globalAlpha=k*(.6+.4*Math.sin(T*4+x));ctx.drawImage(GLOW,x-16,y-16,32,32)};if(!S.base)gl(GLN[0],GLN[1]);if(!S.key)gl(GLF[0],GLF[1])}
+    const gl=(x,y)=>{const p=.6+.4*Math.sin(T*4+x);ctx.globalAlpha=k*p;ctx.drawImage(GLOW,x-30,y-30,60,60);ctx.globalAlpha=k*.9;ctx.strokeStyle='rgba(255,250,220,.9)';ctx.lineWidth=1.4;const r=6+4*p;ctx.beginPath();ctx.moveTo(x-r,y);ctx.lineTo(x+r,y);ctx.moveTo(x,y-r*.7);ctx.lineTo(x,y+r*.7);ctx.stroke()};if(!S.base)gl(GLN[0],GLN[1]);if(!S.key)gl(GLF[0],GLF[1])}
   ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}
 function planksDyn(){layer(1);const R=rng(77);GAPU.forEach((gu,i)=>{if(!S.planks[i])return;const a=pier(gu),b=pier(gu+.044);woodRect(ctx,R,a.cx-a.w/2,b.y,a.w,a.y-b.y-1,'#8a6a44','#4a3420',.3);
   const n=GAPN[i],q=pier(gu+.022);for(let k=0;k<n;k++){ctx.fillStyle='#c8c0b0';ctx.beginPath();ctx.arc(q.cx-q.w*.4+q.w*.8*k/(n-1),q.y,lerp(2.6,1.2,gu),0,7);ctx.fill()}})}
@@ -542,13 +542,13 @@ function go(v,keep){S.view=v;if(!keep)S.sel=null;renderInv();$('back').style.dis
 function HS(){const v=S.view,h=[],add=(id,x,y,w,hh)=>h.push({id,x,y,w,h:hh});
   if(v==='lake'){add('p0Z',205,560,52,150);add('p1Z',696,500,48,130);add('p2Z',1804,520,52,140);if(S.bridge)add('endZ',960,540,170,90);
     add('cocZ',S.cocHome?HUT[0]-80:COCS[0]-55,S.cocHome?HUT[1]-40:COCS[1]-70,S.cocHome?70:110,S.cocHome?50:100);add('spirit',1220,700,230,320);add('reflZ',300,524,1240,120);
-    add('mudZ',150,955,310,70);add('webZ',1520,640,240,240);add('bridgeZ',730,640,380,420);add('moon',MOON[0]-60,MOON[1]-60,120,120)}
+    if(S.lit){if(!S.base)add('glN',GLN[0]-50,GLN[1]-40,100,80);if(!S.key)add('glF',GLF[0]-50,GLF[1]-36,100,72);add('ring',TGT[0]-120,TGT[1]-50,240,100)}add('mudZ',150,955,310,70);add('webZ',1520,640,240,240);add('bridgeZ',730,640,380,420);add('moon',MOON[0]-60,MOON[1]-60,120,120)}
   if(v==='coc'&&!S.cocHome)add('coc',COCS[0]-50,COCS[1]-80,110,110);
   if(v==='mud'){add('mud',250,972,140,46);add('water',170,922,330,38)}
   if(v==='web')add('nhen',1540,650,200,240);
   if(v==='bridge'){GAPU.forEach((gu,i)=>{const q=pier(gu);add('g'+i,q.cx-q.w/2-10,q.y-24,q.w+20,30)});if(S.bridge)add('walk',930,620,140,110)}
-  if(v==='mid'){add('fishN',GLN[0]-45,GLN[1]-34,90,64);add('farF',GLF[0]-40,GLF[1]-30,80,56);add('toEnd',950,610,110,80)}
-  if(v==='end'){add('fishF',GLF[0]-45,GLF[1]-32,90,64);add('cocH',HUT[0]-80,HUT[1]-40,70,50);add('hut',HUT[0]-34,HUT[1]-50,68,56)}
+  if(v==='mid'){add('fishN',GLN[0]-60,GLN[1]-46,120,92);add('farF',GLF[0]-50,GLF[1]-36,100,72);add('toEnd',950,610,110,80);add('ring',TGT[0]-120,TGT[1]-50,240,100);add('wat',500,560,800,460)}
+  if(v==='end'){add('fishF',GLF[0]-60,GLF[1]-44,120,88);add('cocH',HUT[0]-80,HUT[1]-40,70,50);add('hut',HUT[0]-34,HUT[1]-50,68,56);add('wat',640,420,800,420)}
   if(/^p\d$/.test(v)){const i=+v[1],p=P[i];add('rot'+i,p.tx-34,p.ty-30,68,56);add('pil'+i,p.x-20,p.ty+20,40,p.h-20)}
   if(v==='refl')DIFF.forEach((d,i)=>{if(!S.diff[i])add('d'+i,d.x-24,d.y-22,48,40)});
   return h}
@@ -592,6 +592,10 @@ function act(id){const sel=S.sel;
   case 'cocH':case 'hut':if(!S.cocHome)return;if(!S.rod){S.rod=true;give('can');seq([['coc','«Về được nhà rồi, ấm quá. Đây, <b>cái cần câu</b> của ta, cho khách mượn.»'],['coc','«Dây đứt từ lâu, lưỡi thì rơi xuống hồ rồi. Có dây với cái móc là câu được thôi.»']],()=>{goal('Làm cho cần câu dùng được. Rồi dẫn ánh trăng xuống đáy hồ.')});return}
     if(!S.lit){say(line('coc','«Gương đặt vào hốc cột giữa, rồi xoay ba cột cho tia trăng nối nhau xuống đáy hồ.»'),5200);return}say(line('coc','«Câu đi. Hồ chỉ trả lại những gì nó muốn trả.»'));break;
   case 'fishN':catchAt(0);break;
+  case 'glN':if(!S.bridge){say('Có thứ gì lấp lánh dưới đáy, ngay cạnh cây cầu. Phải sửa cầu mới ra tới đó được.');return}go('mid',true);say('Vật lấp lánh nằm ngay cạnh giữa cầu. Cầm <b>cần câu</b> rồi bấm vào chỗ lấp lánh để thả câu.',5200);break;
+  case 'glF':if(!S.bridge){say('Xa ngoài đầu cầu có thứ gì lấp lánh. Phải sửa cầu mới ra tới đó được.');return}go('end',true);say('Vật lấp lánh ở xa, ngay dưới đầu cầu. Cầm <b>cần câu</b> rồi bấm vào chỗ lấp lánh.',5200);break;
+  case 'ring':say('Ánh trăng soi xuống một <b>vòng đá trắng</b> dưới đáy hồ. Vòng đá trống, nhưng nhờ nó cả lòng hồ sáng lên: một vật lấp lánh nằm cạnh <b>giữa cầu</b>, một vật ở xa ngoài <b>đầu cầu</b>.',6200);break;
+  case 'wat':say(S.sel==='cancau'?(S.lit?'Bạn thả câu, chỉ vướng rong. Hãy thả đúng vào <b>chỗ lấp lánh</b>.':'Nước đen kịt, không thấy gì dưới đáy.'):'Mặt hồ lặng như gương.',4200);break;
   case 'farF':say(S.lit?'Ánh lấp lánh thứ hai ở xa, ngoài tầm dây câu. Phải ra tận đầu cầu.':'Mặt nước đen kịt.');break;
   case 'fishF':catchAt(1);break;
   }}

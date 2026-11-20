@@ -394,7 +394,7 @@ function mirrorDraw(){if(S.mirror)return;layer(1);const [x,y]=MIRROR;ctx.fillSty
 function hollowDraw(){layer(1);if(!S.hole&&S.ff>=2&&S.view==='hollow'&&S.sel==='long'){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.5;ctx.drawImage(GLOW,HOLLOW.x-70,HOLLOW.y-70,140,140);ctx.globalAlpha=.9;ctx.drawImage(TEAL,HOLLOW.x+6,HOLLOW.y+20,26,26);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}}
 function carvings(){layer(1);CARVE.forEach((c,i)=>{const mk_=(col,dx,dy)=>{ctx.strokeStyle=col;ctx.lineCap='round';ctx.lineWidth=2.2;for(let k=0;k<c.n;k++){const xx=c.x+dx+(k-(c.n-1)/2)*7;ctx.beginPath();ctx.moveTo(xx,c.y-30+dy);ctx.lineTo(xx,c.y-13+dy);ctx.stroke()}ctx.lineWidth=1.5;for(let k=0;k<4;k++){ctx.beginPath();ctx.moveTo(c.x-15+k*9+dx,c.y-6+dy);ctx.quadraticCurveTo(c.x-11+k*9+dx,c.y+2+dy,c.x-9+k*9+dx,c.y+8+dy);ctx.stroke()}};
   mk_('rgba(10,4,0,.7)',-1,-1);mk_('rgba(236,196,140,.5)',.8,.8);
-  const show=S.carve[i]?1:0,near=S.sel==='long'&&S.ff===3&&S.view==='carve'+i;const a=Math.max(show*.8,near?1:0);if(a>0){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=a*.5;ctx.drawImage(TEAL,c.x-80,c.y-50,160,100);ctx.globalAlpha=a;ctx.globalCompositeOperation='source-over';ctx.fillStyle='rgba(220,255,220,.95)';ctx.font='italic 600 15px Lora,serif';ctx.textAlign='center';ctx.fillText(c.txt,c.x,c.y+28);ctx.fillStyle='rgba(220,255,220,.8)';ctx.fillRect(c.x-36,c.y-24,1,0);ctx.globalAlpha=1}})}
+  const show=S.carve[i]?1:0,near=S.sel==='long'&&S.ff===3&&S.view==='carve'+i;if(!S.carve[i]&&S.ff===3&&S.view==='clear'){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.35+.25*Math.sin(T*2.4+i*2);ctx.drawImage(TEAL,c.x-40,c.y-34,80,68);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}const a=Math.max(show*.8,near?1:0);if(a>0){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=a*.5;ctx.drawImage(TEAL,c.x-80,c.y-50,160,100);ctx.globalAlpha=a;ctx.globalCompositeOperation='source-over';ctx.fillStyle='rgba(220,255,220,.95)';ctx.font='italic 600 15px Lora,serif';ctx.textAlign='center';ctx.fillText(c.txt,c.x,c.y+28);ctx.fillStyle='rgba(220,255,220,.8)';ctx.fillRect(c.x-36,c.y-24,1,0);ctx.globalAlpha=1}})}
 function boxDraw(){layer(1);const [x,y]=BOX,o=S.box?ss(clamp((T-S.boxT)/.8)):0;ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(x,y+22,86,10,0,0,7);ctx.fill();
   const g=ctx.createLinearGradient(0,y-16,0,y+20);g.addColorStop(0,'#7a5a3a');g.addColorStop(1,'#3a2414');ctx.fillStyle=g;rr(ctx,x-80,y-16,160,36,6);ctx.fill();ctx.strokeStyle='rgba(120,170,80,.6)';ctx.lineWidth=2;ctx.strokeRect(x-76,y-12,152,28);
   for(let i=0;i<4;i++){const cx=x-54+i*36;ctx.fillStyle='#2a1a10';ctx.beginPath();ctx.arc(cx,y+2,13,0,7);ctx.fill();const f=FLW[S.slots[i]];ctx.save();ctx.translate(cx,y+2);for(let p=0;p<6;p++){const a=p*1.047;ctx.fillStyle=f.col;ctx.beginPath();ctx.ellipse(Math.cos(a)*5,Math.sin(a)*5,4.4,2.6,a,0,7);ctx.fill()}ctx.fillStyle='#ffd860';ctx.beginPath();ctx.arc(0,0,2.4,0,7);ctx.fill();ctx.restore()}
@@ -480,7 +480,7 @@ function HS(){const v=S.view,h=[],add=(id,x,y,w,hh)=>h.push({id,x,y,w,h:hh});
   if(v==='bush')add('bush',1200,846,124,68);
   if(v==='rocks'){if(!S.mirror)add('mirror',1536,944,48,40);if(S.song&&!S.seeds[2])add('s2',1578,988,48,44)}
   if(v==='hollow'){if(S.lantern&&S.ff===3&&!S.seeds[1])add('s1',276,658,48,48);add('hole',236,540,108,160)}
-  if(/^carve\d$/.test(v)){const i=+v[5],c=CARVE[i];add('cv'+i,c.x-64,c.y-50,128,104)}
+  if(/^carve\d$/.test(v)){const i=+v[5],c=CARVE[i];add('cv'+i,c.x-110,c.y-110,220,200)}
   if(v==='box'){for(let i=0;i<4;i++)add('b'+i,1020+i*36,889,28,28);add('boxI',1006,866,164,54)}
   if(v==='hand'){const p=handPos();add('hand',p.hx-55,p.hy-70,110,120);add('face',915,340,95,110)}
   if(v==='nest'){if(S.song&&T-S.songT>4&&!S.seeds[0])add('s0',NEST[0]-14,NEST[1]-24,40,36);add('birdN',1610,256,116,64)}
@@ -499,7 +499,7 @@ function act(id){const sel=S.sel;
   if(/^fl\d$/.test(id)){const f=FLW[+id[2]];say(`Một bông hoa <b>${f.name.toLowerCase()}</b>, quay mặt về phía mặt trời đang lặn.`);return}
   if(/^cv\d$/.test(id)){const i=+id[2],c=CARVE[i];if(S.sel==='long'&&S.ff===3){if(!S.carve[i]){S.carve[i]=true;sfx('chime');note(`Vết khắc ${c.n} vạch: «${c.txt}»`)}say(`Dưới ánh đom đóm, vết khắc hiện rõ: <b>${c.n} vạch</b>, rồi dòng chữ «<i>${c.txt}</i>».`,5000);
       if(S.carve.every(Boolean)&&!S.said.lyric){S.said.lyric=1;setTimeout(()=>{say('Ghép ba vết khắc theo số vạch, bạn đọc được một câu ru: «<b>Rừng ơi · ngủ đi · trăng về</b>».',6000);note('Câu ru của rừng (ghép theo 1, 2, 3 vạch): <b>Rừng ơi · ngủ đi · trăng về</b>.')},1500)}return}
-    say(S.carve[i]?`Vết khắc ${c.n} vạch: «${c.txt}».`:'Thân cây có vài vạch khắc thẳng, rồi những nét chữ mờ. Tối quá, không đọc được.');return}
+    say(S.carve[i]?`Vết khắc ${c.n} vạch: «${c.txt}».`:S.sel==='long'?'Ánh lồng đèn còn yếu quá, chưa đọc rõ. Cần đủ <b>ba chú đom đóm</b> trong lồng.':'Thân cây có vài vạch khắc thẳng, rồi những nét chữ mờ. Tối quá, không đọc được. <b>Cầm lồng đèn sáng rồi bấm vào vết khắc</b> để soi.',5200);return}
   if(/^b\d$/.test(id)){if(S.box)return;const i=+id[1];S.slots[i]=(S.slots[i]+1)%4;sfx('click');if(S.slots.every((v,k)=>v===BOXANS[k]))setTimeout(()=>{S.box=true;S.boxT=T;sfx('unlock');say('Bốn ô hoa khớp thứ tự. Nắp hộp bật mở: bên trong là <b>một chiếc kèn lá</b>.',5000)},350);return}
   switch(id){
   case 'sun':if(S.tl!==null&&T-S.tl<10)return;S.tl=T;sfx('dusk');say('Bạn đứng nhìn mặt trời lặn dần. Bóng cây cổ thụ bên phải đổ dài qua khoảng rừng… và những bông hoa khép lại theo bóng.',7000);
@@ -521,6 +521,7 @@ function act(id){const sel=S.sel;
   case 'birdN':say(S.song?'Tổ chim trống. Chú chim đã bay đi.':'Một chú chim ngủ say trong tổ.');break;
   }}
 function arrive(v){const once=(k,t,ms)=>{if(!S.said[k]){S.said[k]=1;say(t,ms)}};
+  if(/^carve\d$/.test(v)&&S.sel==='long'&&S.ff===3){setTimeout(()=>{if(S.view===v)act('cv'+v[5])},700);return}
   if(v==='hand')once('hand','Thần rừng ngủ đứng giữa khoảng rừng, rêu đã leo lên vạt áo. Đom đóm vàng lượn quanh bàn tay nàng.',5500);
   if(v==='hollow')once('hollow','Một hốc cây lớn, tối om.');if(v==='box')once('box','Hộp vỏ cây, bốn ô hình hoa: đỏ, tím, trắng, vàng. Nắp khắc «Hoa khép theo bóng chiều».',5000);
   if(v==='bush'&&!S.bloom)once('bush','Bụi hoa mười giờ khép chặt. Hoa này chỉ nở khi có nắng.')}
