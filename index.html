@@ -77,9 +77,9 @@ h1{font:600 clamp(32px,6vw,78px) 'Cormorant Garamond',serif;letter-spacing:.08em
 <div id="toast"></div>
 <div id="rotate"><div class="ph"></div><p>Xoay ngang điện thoại để chơi nhé.</p></div>
 <script>
-const VERSION='1.1.0';
-const CH=[{n:1,t:'Khu Rừng Ngủ Quên',d:'Hoàng hôn. Đánh thức khu rừng và vị Thần rừng đang ngủ.',col:'Hạt giống sáng',file:'chapters/ch1.html'},{n:2,t:'Hồ Gương',d:'Đêm 14. Mặt hồ soi những gì rừng đã quên.',col:'Mảnh phản chiếu',file:'chapters/ch2.html'},{n:3,t:'Đêm Rằm',d:'Căn nhà trong gốc đa và chiếc đèn ông sao.'},
-  {n:4,t:'Đèn Kéo Quân',d:'Gác xép bí mật, bốn hình nhân còn thiếu.'},{n:5,t:'Lời Hẹn',d:'Ngày 16. Mười hai lá thư bị trả về.'},{n:6,t:'Thượng Nguồn',d:'Nơi đốm sáng xanh chờ được gọi tên.'}];
+const VERSION='1.4.0';
+const CH=[{n:1,t:'Khu Rừng Ngủ Quên',d:'Hoàng hôn. Đánh thức khu rừng và vị Thần rừng đang ngủ.',col:'Hạt giống sáng',file:'chapters/ch1.html'},{n:2,t:'Hồ Gương',d:'Đêm 14. Mặt hồ soi những gì rừng đã quên.',col:'Mảnh phản chiếu',file:'chapters/ch2.html'},{n:3,t:'Đêm Rằm',d:'Căn nhà trong gốc đa và chiếc đèn ông sao.',col:'Hạc giấy',file:'chapters/ch3.html'},
+  {n:4,t:'Đèn Kéo Quân',d:'Gác xép bí mật, bốn hình nhân còn thiếu.',col:'Hạc vàng',max:4,file:'chapters/ch4.html'},{n:5,t:'Lời Hẹn',d:'Ngày 16. Mười hai lá thư bị trả về.'},{n:6,t:'Thượng Nguồn',d:'Nơi đốm sáng xanh chờ được gọi tên.'}];
 const AVAIL=CH.map(c=>!!c.file);
 const KEY='krnq_progress_v1';let PG={done:{},found:{},letters:{},seen:0};
 try{const s=localStorage.getItem(KEY);if(s)PG=Object.assign(PG,JSON.parse(s))}catch(e){}
@@ -89,14 +89,14 @@ const current=()=>{for(const c of CH)if(unlocked(c.n)&&!PG.done[c.n])return c.n;
 function menu(){document.getElementById('game').style.display='none';document.getElementById('fr').src='about:blank';document.getElementById('menu').style.display='flex';
   const box=document.getElementById('chs');box.innerHTML='';const cur=current();
   CH.forEach(c=>{const d=document.createElement('div'),ok=unlocked(c.n);d.className='ch'+(ok?'':' lock')+(PG.done[c.n]?' done':'')+(ok&&c.n===cur&&!PG.done[c.n]?' cur':'');
-    d.innerHTML=`<div class="n">Chương ${c.n}</div><div class="t">${c.t}</div><div class="d">${AVAIL[c.n-1]?c.d:'Sắp ra mắt'}</div><div class="st">${PG.done[c.n]?'✓ '+(c.col?`${PG.found[c.n]||0}/3`:''):ok?'▶':'🔒'}</div>`;
+    d.innerHTML=`<div class="n">Chương ${c.n}</div><div class="t">${c.t}</div><div class="d">${AVAIL[c.n-1]?c.d:'Sắp ra mắt'}</div><div class="st">${PG.done[c.n]?'✓ '+(c.col?`${PG.found[c.n]||0}/${c.max||3}`:''):ok?'▶':'🔒'}</div>`;
     if(ok)d.onclick=()=>play(c.n);box.appendChild(d)});
   const anyDone=Object.keys(PG.done).length;document.getElementById('cont').textContent=anyDone?`CHƠI TIẾP · CHƯƠNG ${cur}`:'BẮT ĐẦU';
   const L=['K','H','Ê'].map(x=>PG.letters[x]?x:'·').join(' ');document.getElementById('stats').innerHTML=anyDone?`Đã qua ${anyDone}/6 chương · Mảnh chữ sưu tầm: <b>${L}</b>`:'Tiến độ được lưu tự động trên trình duyệt này.'}
 function play(n){if(!AVAIL[n-1]){menu();return}document.getElementById('menu').style.display='none';document.getElementById('game').style.display='block';
   const fr=document.getElementById('fr');fr.src=CH[n-1].file;fr.dataset.ch=n;fr.onload=()=>{try{fr.contentWindow.focus()}catch(e){}}}
 addEventListener('message',e=>{const m=e.data||{};if(m.type==='chapterDone'){PG.done[m.ch]=1;PG.found[m.ch]=Math.max(PG.found[m.ch]||0,m.found||0);if(m.letter)PG.letters[m.letter]=1;save();
-    try{const w=document.getElementById('fr').contentWindow,b=w.document.getElementById('next');if(b&&AVAIL[m.ch]){b.style.display='inline-block'}else if(b)b.style.display='none';const s=w.document.getElementById('soon');if(s&&!AVAIL[m.ch])s.textContent='Chương '+(m.ch+1)+' · sắp ra mắt'}catch(_){}}
+    try{const w=document.getElementById('fr').contentWindow,b=w.document.getElementById('next');if(b&&AVAIL[m.ch]){b.style.display='inline-block'}else if(b)b.style.display='none';const s=w.document.getElementById('soon');if(s)s.textContent=AVAIL[m.ch]?('Chương '+(m.ch+1)+' — '+CH[m.ch].t):('Chương '+(m.ch+1)+' · sắp ra mắt')}catch(_){}}
   if(m.type==='next'){const n=(m.ch||0)+1;if(AVAIL[n-1])play(n);else menu()}});
 document.getElementById('cont').onclick=()=>play(current());
 document.getElementById('home').onclick=()=>{document.getElementById('confirm').style.display='flex'};

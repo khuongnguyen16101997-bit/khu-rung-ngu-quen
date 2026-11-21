@@ -104,6 +104,11 @@ canvas#c{position:absolute;inset:0;width:100%;height:100%;display:block}
 #ken .holes button:active{background:radial-gradient(#f0ffb0 30%,#2a5a1a 55%,rgba(40,80,20,.2) 70%);color:#183a10}
 #ken .seq{min-height:1.4em;font:600 clamp(16px,1.9vw,24px) Lora,serif;color:#2a5a1a;letter-spacing:.2em}
 @media (max-height:560px){#msg{top:auto;bottom:calc(2.5% + 4.4em);max-width:86%;font-size:13px;padding:.5em .9em}#hud{top:calc(3% + 2.6em)}.btn{font-size:11px}}
+#tsvg{width:min(560px,74vw);height:auto;max-height:52vh;background:radial-gradient(ellipse at center,#2a3448,#141a28);border-radius:10px;touch-action:none;display:block;margin:0 auto}
+#tsvg circle.n{fill:#e8eeff;stroke:#8aa0d8;stroke-width:3;cursor:grab}#tsvg circle.n.drag{fill:#fff;stroke:#ffd87a}
+#fsvg{width:min(420px,70vw);height:auto;max-height:44vh;display:block;margin:0 auto}
+#tangle .st,#fishui .st{min-height:1.4em;font:italic 600 clamp(13px,1.3vw,16px) Lora,serif;color:#5a3a1a;margin:.4em 0}
+#fishui .pull{padding:.6em 2.4em}
 </style>
 </head>
 <body>
@@ -118,6 +123,8 @@ canvas#c{position:absolute;inset:0;width:100%;height:100%;display:block}
   <button class="btn" id="hint">✨ Hỏi đom đóm vàng</button>
   <div class="ov" id="paper"><div class="sheet"><div class="body"></div><button class="close">Cất đi</button></div></div>
   <div class="ov" id="journal"><div class="sheet"><h3>📖 Sổ tay</h3><p><b>Việc cần làm:</b> <i class="goal"></i></p><h3 style="font-size:1.1em;margin-top:.8em">Ghi chép</h3><ul class="notes"></ul><button class="close">Đóng sổ</button></div></div>
+  <div class="ov" id="tangle"><div class="sheet"><h3>Gỡ rối tơ bạc</h3><p class="hand" style="margin:.2em 0 .4em">Kéo các nút tơ sao cho <b>không sợi nào vắt chéo</b> qua sợi nào.</p><svg id="tsvg" viewBox="0 0 520 330"></svg><p class="st"></p><button class="close">Để sau</button></div></div>
+  <div class="ov" id="fishui"><div class="sheet"><h3>Thả câu</h3><svg id="fsvg" viewBox="0 0 320 170"><defs><radialGradient id="fw"><stop offset="0" stop-color="#2a4a6a"/><stop offset="1" stop-color="#0a1426"/></radialGradient></defs><ellipse cx="160" cy="100" rx="150" ry="60" fill="url(#fw)"/><g id="rip"></g><line id="fline" x1="160" y1="0" x2="160" y2="92" stroke="#e8f0ff" stroke-width="1" opacity=".7"/><g id="bob"><ellipse cx="0" cy="0" rx="7" ry="10" fill="#d84a3a"/><ellipse cx="0" cy="-6" rx="7" ry="4" fill="#f4f0e8"/><line x1="0" y1="-10" x2="0" y2="-18" stroke="#f4f0e8" stroke-width="1.5"/></g></svg><p class="st"></p><button class="big pull">KÉO ↑</button> <button class="close">Thôi</button></div></div>
   <div id="title">
     <h1>HỒ GƯƠNG</h1>
     <h2>Khu Rừng Ngủ Quên · Chương 2</h2>
@@ -128,7 +135,7 @@ canvas#c{position:absolute;inset:0;width:100%;height:100%;display:block}
     <h1>HẾT CHƯƠNG 2</h1>
     <h2>“Hồ không nói dối. Nhưng hồ cũng không nói hết.”</h2>
     <p id="endstats"></p>
-    <p style="opacity:.75;font-style:italic">Chương 3 — Đêm Rằm · sắp ra mắt</p>
+    <p id="soon" style="opacity:.75;font-style:italic">Chương 3 — Đêm Rằm</p>
     <button class="big" id="next" style="display:none">SANG CHƯƠNG 3 →</button>
     <button class="big" id="again">CHƠI LẠI</button>
   </div>
@@ -407,7 +414,7 @@ function beams(){const {seg}=chain();layer(1);ctx.globalCompositeOperation='ligh
 function planksDyn(){layer(1);const R=rng(77);GAPU.forEach((gu,i)=>{if(!S.planks[i])return;const a=pier(gu),b=pier(gu+.044);woodRect(ctx,R,a.cx-a.w/2,b.y,a.w,a.y-b.y-1,'#8a6a44','#4a3420',.3);
   const n=GAPN[i],q=pier(gu+.022);for(let k=0;k<n;k++){ctx.fillStyle='#c8c0b0';ctx.beginPath();ctx.arc(q.cx-q.w*.4+q.w*.8*k/(n-1),q.y,lerp(2.6,1.2,gu),0,7);ctx.fill()}})}
 function plankShape(c,x,y,len,n){c.fillStyle='#7a5a3a';c.fillRect(x-len/2,y-7,len,14);c.fillStyle='#000';for(let k=0;k<n;k++){c.beginPath();c.arc(x-len*.4+len*.8*k/(n-1),y,2.4,0,7);c.fill()}}
-function mudDyn(){layer(1);const [x,y]=[MUD[0]+20,MUD[1]+4];if(S.tip&&!S.dug){ctx.fillStyle='#c8b090';ctx.beginPath();ctx.moveTo(x-6,y);ctx.lineTo(x,y-14);ctx.lineTo(x+7,y);ctx.fill();ctx.strokeStyle='#6a4a30';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x-3,y-5);ctx.lineTo(x+4,y-7);ctx.stroke()}
+function mudDyn(){layer(1);const [x,y]=[MUD[0]+20,MUD[1]+4];if(S.sel==='ocbun'){ctx.globalCompositeOperation='lighter';for(let i=0;i<3;i++){const u=(T*.5+i/3)%1;ctx.strokeStyle=`rgba(190,220,255,${.5*(1-u)})`;ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(MUD[0]+40,MUD[1]-52,30+u*80,(30+u*80)*.22,0,0,7);ctx.stroke()}ctx.globalCompositeOperation='source-over'}if(S.tip&&!S.dug){ctx.fillStyle='#c8b090';ctx.beginPath();ctx.moveTo(x-6,y);ctx.lineTo(x,y-14);ctx.lineTo(x+7,y);ctx.fill();ctx.strokeStyle='#6a4a30';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(x-3,y-5);ctx.lineTo(x+4,y-7);ctx.stroke()}
   if(!S.tip&&S.view==='mud'&&S.sel==='long'){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.25;ctx.drawImage(SOFT,x-40,y-24,80,48);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}}
 function snail(c,x,y,s,muddy){c.save();c.translate(x,y);c.scale(s,s);c.fillStyle=muddy?'#5a4a34':'#d8c4a0';c.beginPath();c.ellipse(0,0,22,18,-.3,0,7);c.fill();c.strokeStyle=muddy?'#3a2a1a':'#8a6a44';c.lineWidth=2.4;c.beginPath();for(let a=0;a<12;a+=.3){const r=18-a*1.4;c.lineTo(Math.cos(a)*r,Math.sin(a)*r*.8)}c.stroke();
   c.fillStyle=muddy?'#4a3a28':'#e8d8b8';c.beginPath();c.moveTo(14,-10);c.lineTo(30,-24);c.lineTo(20,-4);c.fill();c.restore()}
@@ -507,11 +514,11 @@ function goal(t){S.goal=t}
 function updHud(){$('hudc').textContent=S.diff.filter(Boolean).length+'/3'}
 function paper(html){$('paper').querySelector('.body').innerHTML=html;$('paper').style.display='flex';sfx('paper')}
 function openJournal(){$('jbtn').classList.remove('new');const j=$('journal');j.querySelector('.goal').textContent=S.goal;j.querySelector('.notes').innerHTML=S.notes.length?S.notes.map(n=>`<li>${n}</li>`).join(''):'<li><i>Chưa có ghi chép.</i></li>';j.style.display='flex';sfx('paper')}
-const modal=()=>['paper','journal'].some(id=>$(id).style.display==='flex');
+const modal=()=>['paper','journal','tangle','fishui'].some(id=>$(id).style.display==='flex');
 
 // ================= inventory =================
 const NAMES={long:'Lồng đèn rêu (đom đóm vàng ở trong)',guong:'Mảnh gương vỡ',ocbun:'Vỏ ốc lấm bùn',oc:'Vỏ ốc sạch',v0:'Ván dài (4 lỗ đinh)',v1:'Ván vừa (3 lỗ đinh)',v2:'Ván ngắn (2 lỗ đinh)',
-  to:'Sợi tơ bạc',tram:'Trâm cài cũ',can:'Cần câu (không dây, không lưỡi)',canday:'Cần câu có dây (chưa có lưỡi)',cancau:'Cần câu hoàn chỉnh',de:'Mảnh đế đèn bão «1966»',chia:'Chìa khóa đồng «Nhà gốc cây»'};
+  to:'Sợi tơ bạc',torol:'Cuộn tơ bạc bị rối',tram:'Trâm cài cũ',can:'Cần câu (không dây, không lưỡi)',canday:'Cần câu có dây (chưa có lưỡi)',cancau:'Cần câu hoàn chỉnh',de:'Mảnh đế đèn bão «1966»',chia:'Chìa khóa đồng «Nhà gốc cây»'};
 const IC=s=>`<svg viewBox="0 0 60 60">${s}</svg>`;
 const plankIc=(len,n)=>IC(`<rect x="${30-len/2}" y="24" width="${len}" height="12" rx="2" fill="#8a6a44" stroke="#4a3420"/>`+Array.from({length:n},(_,k)=>`<circle cx="${30-len*.4+len*.8*k/(n-1)}" cy="30" r="2.2" fill="#111"/>`).join(''));
 const ICON={long:IC('<circle cx="30" cy="30" r="24" fill="rgba(180,255,200,.3)"/><ellipse cx="30" cy="14" rx="12" ry="4" fill="#3a4a24"/><path d="M18 16 Q14 32 20 46 L40 46 Q46 32 42 16Z" fill="rgba(220,255,200,.55)" stroke="#5a7a34" stroke-width="2"/><circle cx="30" cy="31" r="3.4" fill="#ffe890"/>'),
@@ -519,20 +526,21 @@ const ICON={long:IC('<circle cx="30" cy="30" r="24" fill="rgba(180,255,200,.3)"/
   ocbun:IC('<ellipse cx="28" cy="32" rx="18" ry="14" fill="#5a4a34"/><path d="M40 24 L52 12 L44 30Z" fill="#4a3a28"/><circle cx="20" cy="38" r="4" fill="#2a2016"/>'),
   oc:IC('<ellipse cx="28" cy="32" rx="18" ry="14" fill="#e8d8b8"/><path d="M28 32 m-10 0 a10 8 0 1 0 20 0 a7 6 0 1 0 -14 0 a4 3 0 1 0 8 0" fill="none" stroke="#8a6a44" stroke-width="2"/><path d="M40 24 L52 12 L44 30Z" fill="#f0e4c8"/>'),
   v0:plankIc(52,4),v1:plankIc(42,3),v2:plankIc(30,2),
-  to:IC('<path d="M8 40 Q20 10 30 30 T52 20" fill="none" stroke="#eef6ff" stroke-width="2.4"/>'),tram:IC('<rect x="10" y="28" width="38" height="3" fill="#e8c870" transform="rotate(-25 30 30)"/><circle cx="46" cy="21" r="5" fill="#e8c870"/>'),
+  to:IC('<path d="M8 40 Q20 10 30 30 T52 20" fill="none" stroke="#eef6ff" stroke-width="2.4"/>'),torol:IC('<path d="M14 30 C20 8 40 52 46 26 C50 12 22 18 26 40 C30 54 44 40 36 22 C28 8 12 22 20 40" fill="none" stroke="#eef6ff" stroke-width="2"/>'),tram:IC('<rect x="10" y="28" width="38" height="3" fill="#e8c870" transform="rotate(-25 30 30)"/><circle cx="46" cy="21" r="5" fill="#e8c870"/>'),
   can:IC('<path d="M8 52 L50 10" stroke="#8a6a3a" stroke-width="4" stroke-linecap="round"/>'),canday:IC('<path d="M8 52 L50 10" stroke="#8a6a3a" stroke-width="4" stroke-linecap="round"/><path d="M50 10 Q54 30 46 48" stroke="#eef6ff" fill="none" stroke-width="1.4"/>'),
   cancau:IC('<path d="M8 52 L50 10" stroke="#8a6a3a" stroke-width="4" stroke-linecap="round"/><path d="M50 10 Q54 30 46 46" stroke="#eef6ff" fill="none" stroke-width="1.4"/><path d="M46 46 q0 6 -5 5" stroke="#e8c870" stroke-width="2" fill="none"/>'),
   de:IC('<path d="M10 40 L50 40 L46 30 L14 30Z" fill="#6a5a40" stroke="#b8a070"/><text x="30" y="38.5" font-size="8.5" text-anchor="middle" fill="#f0e0b0" font-family="serif">1966</text>'),
   chia:IC('<circle cx="18" cy="30" r="9" fill="none" stroke="#5aa08a" stroke-width="4"/><path d="M27 30 L52 30 M44 30 L44 38 M50 30 L50 36" stroke="#5aa08a" stroke-width="4"/>')};
 function renderInv(){const inv=$('inv');inv.innerHTML='';const ks=Object.keys(S.inv).filter(k=>S.inv[k]);if(!ks.length){inv.innerHTML='<span id="empty">Túi đồ trống</span>';return}
   ks.forEach(k=>{const d=document.createElement('div');d.className='slot'+(S.sel===k?' sel':'');d.dataset.k=k;d.innerHTML=ICON[k]+`<span class="tip">${NAMES[k]}</span>`;
-    d.onclick=e=>{e.stopPropagation();if(S.ending)return;sfx('tick');if(S.sel===k){S.sel=null;renderInv();return}
-      if(S.sel&&combine(S.sel,k))return;S.sel=k;say(`Bạn cầm <b>${NAMES[k].toLowerCase()}</b>. Bấm vào chỗ muốn dùng, hoặc bấm một món khác để ghép.`,2800);renderInv()};inv.appendChild(d)})}
+    d.onclick=e=>{e.stopPropagation();if(S.ending)return;sfx('tick');if(S.sel===k){S.sel=null;renderInv();if(k==='torol')openTangle();return}
+      if(S.sel&&combine(S.sel,k))return;S.sel=k;say(k==='torol'?'Sợi tơ rối như mớ bòng bong. <b>Bấm thêm lần nữa</b> để gỡ rối.':`Bạn cầm <b>${NAMES[k].toLowerCase()}</b>. Bấm vào chỗ muốn dùng, hoặc bấm một món khác để ghép.`,2800);renderInv()};inv.appendChild(d)})}
 function give(k){S.inv[k]=1;sfx('pick');renderInv()}
 function drop(k){delete S.inv[k];if(S.sel===k)S.sel=null;renderInv()}
 function combine(a,b){const has=(x,y)=>(a===x&&b===y)||(a===y&&b===x);
   if(has('can','to')){drop('can');drop('to');give('canday');say('Bạn buộc sợi tơ bạc vào đầu cần. Tơ của Bà Nhện dai và mảnh, gần như không nhìn thấy dưới nước. Giờ chỉ thiếu <b>lưỡi câu</b>.',5200);return true}
   if(has('canday','tram')){drop('canday');drop('tram');give('cancau');S.sel=null;renderInv();sfx('unlock');say('Bạn uốn cong chiếc trâm cài thành một cái móc, buộc vào cuối dây. <b>Cần câu hoàn chỉnh!</b>',5000);note('Đã có cần câu hoàn chỉnh (cần của Ông Cóc + tơ bạc + trâm cài uốn làm lưỡi).');return true}
+  if(has('can','torol')||has('torol','tram')){say('Tơ rối như mớ bòng bong, phải gỡ ra trước đã.');S.sel=null;renderInv();setTimeout(openTangle,600);return true}
   if(has('can','tram')){say('Phải có dây câu trước đã, rồi mới buộc lưỡi vào được.');return true}
   if(has('to','tram')){say('Có dây, có móc, nhưng còn thiếu cái cần để cầm.');return true}
   return false}
@@ -544,7 +552,7 @@ function HS(){const v=S.view,h=[],add=(id,x,y,w,hh)=>h.push({id,x,y,w,h:hh});
     add('cocZ',S.cocHome?HUT[0]-80:COCS[0]-55,S.cocHome?HUT[1]-40:COCS[1]-70,S.cocHome?70:110,S.cocHome?50:100);add('spirit',1220,700,230,320);add('reflZ',300,524,1240,120);
     if(S.lit){if(!S.base)add('glN',GLN[0]-50,GLN[1]-40,100,80);if(!S.key)add('glF',GLF[0]-50,GLF[1]-36,100,72);add('ring',TGT[0]-120,TGT[1]-50,240,100)}add('mudZ',150,955,310,70);add('webZ',1520,640,240,240);add('bridgeZ',730,640,380,420);add('moon',MOON[0]-60,MOON[1]-60,120,120)}
   if(v==='coc'&&!S.cocHome)add('coc',COCS[0]-50,COCS[1]-80,110,110);
-  if(v==='mud'){add('mud',250,972,140,46);add('water',170,922,330,38)}
+  if(v==='mud'){add('mud',250,972,140,46);add('water',130,846,420,124)}
   if(v==='web')add('nhen',1540,650,200,240);
   if(v==='bridge'){GAPU.forEach((gu,i)=>{const q=pier(gu);add('g'+i,q.cx-q.w/2-10,q.y-24,q.w+20,30)});if(S.bridge)add('walk',930,620,140,110)}
   if(v==='mid'){add('fishN',GLN[0]-60,GLN[1]-46,120,92);add('farF',GLF[0]-50,GLF[1]-36,100,72);add('toEnd',950,610,110,80);add('ring',TGT[0]-120,TGT[1]-50,240,100);add('wat',500,560,800,460)}
@@ -579,12 +587,12 @@ function act(id){const sel=S.sel;
   case 'coc':if(!S.metCoc){S.metCoc=true;seq([['coc','«Ộp… Khách lạ đấy à? Ta là Cóc, giữ cây cầu này từ hồi còn là con nòng nọc.»'],['coc','«Nhà ta ở cuối cầu kia. Nhưng ba tấm ván ta cho <b>Bà Nhện</b> mượn làm khung lưới rồi, giờ ta kẹt ở đây, không về được.»'],
       ['coc','«Ngày xưa trăng soi tận đáy hồ, nhờ <b>ba cột đá</b> kia. Cột giữa có cái hốc, vừa một mảnh gương. Từ ngày gương mất, hồ chẳng còn cho ai xem gì nữa.»']],()=>{note('Ông Cóc cho Bà Nhện (bờ phải) mượn ba tấm ván cầu làm khung lưới.');note('Ba cột đá dẫn ánh trăng xuống đáy hồ. Cột giữa có hốc vừa một mảnh gương.');goal('Hỏi Bà Nhện ở bờ bên phải về ba tấm ván.')});return}
     say(line('coc','«Ván, ván của ta… Bà Nhện ở bờ bên phải ấy.»'));break;
-  case 'nhen':if(sel==='oc'){drop('oc');S.gave=true;['v0','v1','v2','to','tram'].forEach(give);sfx('unlock');seq([['nhen','«Vỏ đẹp quá! Rỗng, sạch, đúng ý ta. Ta dọn vào ngay.»'],['nhen','«Đây, ba tấm ván của lão Cóc. Dài ngắn khác nhau đấy, lắp cho đúng chỗ.»'],['nhen','«Sợi <b>tơ bạc</b> này dai nhất ta từng nhả, cầm lấy. Còn cái <b>trâm cài</b> mắc lưới từ đời nào, không ăn được, cho cậu luôn.»']],()=>{goal('Lắp ba tấm ván vào chỗ trống trên cầu.');note('Ba tấm ván dài, vừa, ngắn có 4, 3, 2 lỗ đinh.')});return}
+  case 'nhen':if(sel==='oc'){drop('oc');S.gave=true;['v0','v1','v2','torol','tram'].forEach(give);sfx('unlock');seq([['nhen','«Vỏ đẹp quá! Rỗng, sạch, đúng ý ta. Ta dọn vào ngay.»'],['nhen','«Đây, ba tấm ván của lão Cóc. Dài ngắn khác nhau đấy, lắp cho đúng chỗ.»'],['nhen','«Sợi <b>tơ bạc</b> này dai nhất ta từng nhả, cầm lấy. Lúc dọn nhà nó rối cả rồi, cậu chịu khó gỡ nhé. Còn cái <b>trâm cài</b> mắc lưới từ đời nào, không ăn được, cho cậu luôn.»']],()=>{goal('Lắp ba tấm ván vào chỗ trống trên cầu.');note('Ba tấm ván dài, vừa, ngắn có 4, 3, 2 lỗ đinh.')});return}
     if(sel==='ocbun'){say(line('nhen','«Bùn đất thế kia ta ở sao được! Rửa sạch đi đã.»'));return}
     if(S.gave){say(line('nhen','«Nhà mới ấm lắm. Cảm ơn cậu.»'));return}
     if(!S.metNhen){S.metNhen=true;seq([['nhen','«Ván của lão Cóc ấy hả? Ta đang giăng lưới trên đó, sắp đẻ trứng rồi.»'],['nhen','«Muốn ta trả thì tìm cho ta <b>một cái vỏ ốc to, rỗng, sạch sẽ</b>. Ta dọn vào đó ở, khung ván trả lão.»'],['nhen','«Mùa nước cạn, ốc bươu to hay vùi trong <b>bùn ven bờ</b>. Tối thế này, phải có đèn mới thấy.»']],()=>{note('Bà Nhện cần một cái vỏ ốc to, rỗng, sạch. Ốc hay vùi trong bùn ven bờ, cần đèn mới thấy.');goal('Tìm một vỏ ốc to, rỗng, sạch cho Bà Nhện.')});return}
     say(line('nhen','«Vỏ ốc to, rỗng, sạch sẽ. Trong bùn ven bờ ấy.»'));break;
-  case 'mud':if(S.dug){say('Chỉ còn bùn nhão.');return}if(S.tip){S.dug=true;give('ocbun');sfx('mud');say('Bạn moi bùn, kéo lên một <b>vỏ ốc bươu</b> to bằng nắm tay. Rỗng ruột, nhưng lấm đầy bùn.');return}
+  case 'mud':if(sel==='ocbun'){act('water');return}if(S.dug){say('Chỉ còn bùn nhão.');return}if(S.tip){S.dug=true;give('ocbun');sfx('mud');say('Bạn moi bùn, kéo lên một <b>vỏ ốc bươu</b> to bằng nắm tay. Rỗng ruột, nhưng lấm đầy bùn.');return}
     if(sel==='long'){S.tip=true;sfx('chime');say('Ánh lồng đèn rêu soi xuống chỗ nước nông… có một cái chóp vỏ ốc nhô khỏi bùn!');return}say('Bùn nhão đen sì bên mép nước. Tối quá, không thấy gì.');break;
   case 'water':if(sel==='ocbun'){drop('ocbun');give('oc');sfx('splash');say('Bạn rửa vỏ ốc trong nước hồ. Vỏ trắng ngà, rỗng, sạch sẽ.');return}say('Nước hồ lạnh và trong.');break;
   case 'walk':go('mid',true);arrive('mid');break;
@@ -602,10 +610,10 @@ function act(id){const sel=S.sel;
 function catchAt(k){if(S.catching){return}const done=k?S.key:S.base;if(done){say('Chỗ này câu rồi.');return}
   if(S.sel!=='cancau'){if(S.sel==='can'||S.sel==='canday'){say(S.sel==='can'?'Cần chưa có dây.':'Cần có dây nhưng chưa có lưỡi.');return}say(S.lit?(k?'Dưới đáy có thứ gì lấp lánh. Cần thứ gì để câu lên.':'Có gì đó lấp lánh dưới đáy, ngay cạnh cầu. Cần thứ gì để câu lên.'):'Nước đen kịt, không thấy gì dưới đáy.');return}
   if(!S.lit){say('Bạn thả câu vào nước đen. Không có gì cắn câu. Đáy hồ tối quá, không biết thả vào đâu.',5000);return}
-  const [x,y]=k?GLF:GLN;S.catching=true;S.fish={x,y,t:T};sfx('splash');setTimeout(()=>{S.catching=false;sfx('reel');if(k){S.key=true;give('chia');paper('<p class="hand">Lưỡi câu móc lên một <b>chiếc chìa khóa đồng</b> xanh rêu. Trên cán khắc ba chữ:</p><p class="hand" style="font-size:1.25em;text-align:center">«Nhà gốc cây»</p>')}
+  const [x,y]=k?GLF:GLN;S.catching=true;S.fish={x,y,t:T};sfx('splash');setTimeout(()=>openFishing(k,()=>{S.catching=false;sfx('reel');if(k){S.key=true;give('chia');paper('<p class="hand">Lưỡi câu móc lên một <b>chiếc chìa khóa đồng</b> xanh rêu. Trên cán khắc ba chữ:</p><p class="hand" style="font-size:1.25em;text-align:center">«Nhà gốc cây»</p>')}
     else{S.base=true;give('de');paper('<p class="hand">Bạn câu lên một <b>mảnh đế đèn bão</b> bằng đồng, méo mó như từng bị quật vào đá. Mặt dưới khắc bốn chữ số:</p><p class="hand" style="font-size:1.35em;text-align:center">1966</p>');note('Mảnh đế đèn bão khắc «1966», câu được dưới đáy Hồ Gương.')}
     const fin=()=>{if(S.base&&S.key)startEnding();else goal(S.base?'Ra đầu cầu, câu vật lấp lánh còn lại.':'Câu vật lấp lánh gần giữa cầu.')};
-    const wait=()=>{if(modal()){setTimeout(wait,300);return}if(!k){S.mem={k:1,t:T};seq(['Mặt nước gợn lên. Trong làn nước sáng, <b>hai đứa trẻ</b> nắm tay nhau chạy giữa mưa bão.',['spirit','«Hai đứa… Sao ta thấy quen đến vậy?»']],fin)}else fin()};setTimeout(wait,400)},1300)}
+    const wait=()=>{if(modal()){setTimeout(wait,300);return}if(!k){S.mem={k:1,t:T};seq(['Mặt nước gợn lên. Trong làn nước sáng, <b>hai đứa trẻ</b> nắm tay nhau chạy giữa mưa bão.',['spirit','«Hai đứa… Sao ta thấy quen đến vậy?»']],fin)}else fin()};setTimeout(wait,400)}),700)}
 function rotate(i){if(i===1&&!S.mirrorIn){if(S.sel==='guong'){S.mirrorIn=true;drop('guong');sfx('chime');say('Mảnh gương vỡ khít vào hốc trên đỉnh cột như được cắt ra cho nó. Giờ cột giữa phản chiếu được ánh trăng.',5200);note('Đã gắn mảnh gương vào cột đá giữa hồ.');goal('Xoay ba cột đá để tia trăng nối nhau xuống đáy hồ.');return}
     say('Đỉnh cột có một cái hốc hình mảnh vỡ. Đá thô ráp, không phản chiếu được gì.');return}
   if(S.lit){say('Tia trăng đã nối xuống đáy hồ. Không nên xoay nữa.');return}
@@ -618,15 +626,46 @@ function arrive(v){const once=(k,t,ms)=>{if(!S.said[k]){S.said[k]=1;say(t,ms)}};
   if(v==='refl')once('refl','Bóng bờ bên kia in trên mặt hồ. Nhìn kỹ thì bóng nước <b>không giống hệt</b> bờ thật…',5600);
   if(v==='bridge'&&!S.bridge)once('bridge','Cây cầu gỗ ra giữa hồ thiếu <b>ba tấm ván</b>. Mỗi khoảng trống còn lỗ đinh cũ trên xà.',5200);
   if(v==='mud')once('mud','Bãi bùn nhão bên mép nước.');if(v==='p1'&&!S.mirrorIn)once('p1','Cột đá giữa hồ. Đỉnh cột có một cái hốc hình mảnh vỡ.')}
+
+// ================= mini game: untangle the silver thread =================
+const TGE=[[0,1],[1,2],[2,3],[3,4],[4,5],[5,0],[6,0],[6,1],[6,2],[6,3],[6,4],[6,5]];let TGP=null,TGdrag=-1,TGdone=false;
+function tgCross(){const P=TGP,o=(a,b,c)=>Math.sign((b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]));let bad=new Set(),n=0;
+  for(let i=0;i<TGE.length;i++)for(let j=i+1;j<TGE.length;j++){const [a,b]=TGE[i],[c,d]=TGE[j];if(a===c||a===d||b===c||b===d)continue;const A=P[a],B=P[b],C=P[c],D=P[d];
+    if(o(A,B,C)!==o(A,B,D)&&o(C,D,A)!==o(C,D,B)){n++;bad.add(i);bad.add(j)}}return{n,bad}}
+function tgDraw(){const svg=$('tsvg'),{n,bad}=tgCross();let h='';TGE.forEach(([a,b],i)=>{h+=`<line x1="${TGP[a][0]}" y1="${TGP[a][1]}" x2="${TGP[b][0]}" y2="${TGP[b][1]}" stroke="${bad.has(i)?'#ff9a7a':'#cfe0ff'}" stroke-width="${bad.has(i)?3:2.4}" stroke-linecap="round" opacity=".9"/>`});
+  TGP.forEach((p,i)=>{h+=`<circle class="n${TGdrag===i?' drag':''}" data-i="${i}" cx="${p[0]}" cy="${p[1]}" r="13"/>`});svg.innerHTML=h;$('tangle').querySelector('.st').textContent=TGdone?'Gỡ xong! Sợi tơ bạc thẳng tắp.':n?`Còn ${n} chỗ vắt chéo`:'';return n}
+function openTangle(){if(!S.inv.torol)return;if(!TGP){const order=[0,3,1,5,2,4];TGP=Array(7);order.forEach((k,i)=>{const a=i/6*Math.PI*2-1.2;TGP[k]=[260+Math.cos(a)*120,165+Math.sin(a)*110]});TGP[6]=[455,52]}
+  TGdone=false;TGdrag=-1;$('tangle').style.display='flex';sfx('paper');tgDraw()}
+(function(){const svg=$('tsvg');const pt=e=>{const r=svg.getBoundingClientRect();return[(e.clientX-r.left)/r.width*520,(e.clientY-r.top)/r.height*330]};
+  svg.addEventListener('pointerdown',e=>{if(TGdone)return;const [x,y]=pt(e);let best=-1,bd=30;TGP.forEach((p,i)=>{const d=Math.hypot(p[0]-x,p[1]-y);if(d<bd){bd=d;best=i}});if(best>=0){TGdrag=best;svg.setPointerCapture(e.pointerId);sfx('tick');tgDraw()}});
+  svg.addEventListener('pointermove',e=>{if(TGdrag<0)return;const [x,y]=pt(e);TGP[TGdrag]=[clamp(x,16,504),clamp(y,16,314)];tgDraw()});
+  const up=()=>{if(TGdrag<0)return;TGdrag=-1;if(tgDraw()===0&&!TGdone){TGdone=true;tgDraw();sfx('unlock');setTimeout(()=>{$('tangle').style.display='none';drop('torol');give('to');say('Bạn gỡ xong mớ tơ. <b>Sợi tơ bạc</b> dài và dai, đủ làm dây câu.',4200);note('Đã gỡ rối sợi tơ bạc của Bà Nhện.')},1100)}};
+  svg.addEventListener('pointerup',up);svg.addEventListener('pointercancel',up)})();
+// ================= mini game: pull the line when the float sinks =================
+let FG=null;
+function openFishing(k,win){FG={k,win,state:'wait',t0:performance.now(),next:performance.now()+1200+Math.random()*1500,nibbles:1+Math.floor(Math.random()*2),dipLen:k?900:1200};
+  $('fishui').querySelector('.st').textContent='Lưỡi câu chìm dần xuống đáy… chờ phao động.';$('fishui').style.display='flex';requestAnimationFrame(fgTick)}
+function fgTick(now){if(!FG||$('fishui').style.display!=='flex'){if(FG&&!FG.done){S.catching=false;S.fish=null}FG=null;return}const f=FG,st=$('fishui').querySelector('.st');
+  if(f.state==='wait'&&now>f.next){if(f.nibbles>0){f.state='nib';f.until=now+700;f.nibbles--;st.textContent='Phao rung nhẹ… lưỡi câu đang quẹt qua sỏi đáy. Chưa kéo!'}else{f.state='dip';f.until=now+f.dipLen;st.textContent='Phao chìm hẳn! KÉO NGAY!';sfx('splash')}}
+  if(f.state==='nib'&&now>f.until){f.state='wait';f.next=now+900+Math.random()*1600;st.textContent='Chờ phao động…'}
+  if(f.state==='dip'&&now>f.until){f.state='miss';f.until=now+1300;st.textContent='Chậm mất rồi, vật tuột khỏi lưỡi. Thả lại…'}
+  if(f.state==='miss'&&now>f.until){f.state='wait';f.next=now+1400+Math.random()*1500;f.nibbles=1+Math.floor(Math.random()*2);st.textContent='Lưỡi câu chìm dần xuống đáy… chờ phao động.'}
+  const tt=now/1000;let by=92,bx=160,sc=1;if(f.state==='wait'||f.state==='miss')by=92+Math.sin(tt*2)*1.5;if(f.state==='nib')by=92+Math.sin(tt*40)*3;if(f.state==='dip'){by=108;sc=.55}
+  $('bob').setAttribute('transform',`translate(${bx},${by}) scale(${sc})`);$('fline').setAttribute('y2',by-14);
+  $('rip').innerHTML=[0,1,2].map(i=>{const u=((tt*.6+i/3)%1),r=10+u*(f.state==='dip'?70:30);return`<ellipse cx="160" cy="${by+6}" rx="${r}" ry="${r*.3}" fill="none" stroke="#cfe0ff" opacity="${(1-u)*.5}"/>`}).join('');
+  requestAnimationFrame(fgTick)}
+$('fishui').querySelector('.pull').onclick=()=>{const f=FG;if(!f)return;const st=$('fishui').querySelector('.st');
+  if(f.state==='dip'){f.done=true;st.textContent='Trúng rồi!';sfx('reel');setTimeout(()=>{$('fishui').style.display='none';FG=null;f.win()},700);return}
+  if(f.state==='miss')return;f.state='miss';f.until=performance.now()+1300;st.textContent='Kéo sớm quá! Lưỡi câu trượt khỏi vật dưới đáy. Thả lại…';sfx('splash')};
 // ---- hints: the golden firefly shows the way
 function stage(){if(!S.metCoc)return'coc';if(!S.metNhen&&!S.gave)return'nhen';if(!S.gave){if(S.inv.oc)return'give';if(S.inv.ocbun)return'wash';return S.tip?'dig':'tip'}
-  if(!S.bridge)return'planks';if(!S.rod)return'rod';if(!S.inv.cancau&&!S.base&&!S.key)return S.inv.canday?'hook':'line';if(!S.mirrorIn)return'mirror';if(!S.lit)return'rot';if(!S.base)return'base';return'key'}
+  if(!S.bridge)return'planks';if(!S.rod)return'rod';if(S.inv.torol)return'untangle';if(!S.inv.cancau&&!S.base&&!S.key)return S.inv.canday?'hook':'line';if(!S.mirrorIn)return'mirror';if(!S.lit)return'rot';if(!S.base)return'base';return'key'}
 const HINT={coc:[COCS,'Ông Cóc ngồi trên hòn đá ở đầu cầu, trông như đang chờ ai.','Bấm vào Ông Cóc để nói chuyện.'],nhen:[WEB,'Bà Nhện ở bờ bên phải đang giữ ba tấm ván.','Bấm vào tấm lưới bên phải để hỏi Bà Nhện.'],
   tip:[MUD,'Ốc vùi trong bùn ven bờ, phải có đèn mới thấy.','Phóng to bãi bùn, cầm lồng đèn rêu rồi bấm vào bùn.'],dig:[MUD,'Chóp vỏ ốc đã nhô lên.','Bấm vào chóp vỏ ốc để moi lên.'],wash:[[330,940],'Bà Nhện muốn vỏ sạch sẽ.','Cầm vỏ ốc lấm bùn, bấm vào mép nước ở bãi bùn để rửa.'],give:[WEB,'Bà Nhện đang chờ vỏ ốc.','Cầm vỏ ốc sạch, bấm vào Bà Nhện.'],
   planks:[[905,860],'Ba tấm ván dài ngắn khác nhau, lỗ đinh cũng khác nhau.','Ván dài 4 lỗ vào khoảng gần nhất, ván vừa 3 lỗ vào giữa, ván ngắn 2 lỗ vào khoảng xa nhất.'],rod:[HUT,'Ông Cóc đã về nhà ở cuối cầu.','Ra cuối cầu, bấm vào Ông Cóc.'],
-  line:[[960,700],'Cần câu thiếu dây. Bà Nhện đã cho bạn một thứ rất dai.','Trong túi đồ, bấm cần câu rồi bấm sợi tơ bạc để ghép.'],hook:[[960,700],'Dây đã có, còn thiếu lưỡi câu. Chiếc trâm cài uốn được.','Bấm cần câu có dây rồi bấm trâm cài để ghép.'],
+  untangle:[[960,700],'Sợi tơ bạc của Bà Nhện bị rối, phải gỡ ra mới làm dây câu được.','Trong túi đồ, bấm hai lần vào cuộn tơ rối rồi kéo các nút cho không sợi nào vắt chéo: các nút quanh vành xếp theo vòng tròn, nút giữa đặt ở trong.'],line:[[960,700],'Cần câu thiếu dây. Bà Nhện đã cho bạn một thứ rất dai.','Trong túi đồ, bấm cần câu rồi bấm sợi tơ bạc để ghép.'],hook:[[960,700],'Dây đã có, còn thiếu lưỡi câu. Chiếc trâm cài uốn được.','Bấm cần câu có dây rồi bấm trâm cài để ghép.'],
   mirror:[[P[1].tx,P[1].ty],'Cột giữa hồ có một cái hốc vừa mảnh gương.','Phóng to cột đá giữa hồ, cầm mảnh gương vỡ rồi bấm vào hốc.'],rot:[null,'Tia trăng phải nối từ cột này sang cột kia rồi xuống đáy hồ.','Thứ tự: cột bờ trái → cột giữa hồ → cột bờ phải → vòng đá dưới đáy. Bấm đỉnh cột để xoay đến khi tia sáng chạm đúng đỉnh cột kế tiếp.'],
-  base:[GLN,'Vật lấp lánh gần nằm ngay cạnh giữa cầu.','Đi ra giữa cầu, cầm cần câu rồi bấm vào chỗ lấp lánh.'],key:[GLF,'Vật lấp lánh xa nằm ngoài đầu cầu.','Ra đầu cầu (cạnh lều Ông Cóc), cầm cần câu rồi bấm vào chỗ lấp lánh.']};
+  base:[GLN,'Vật lấp lánh gần nằm ngay cạnh giữa cầu.','Đi ra giữa cầu, cầm cần câu rồi bấm vào chỗ lấp lánh. Khi phao chỉ rung thì chờ, phao chìm hẳn mới bấm KÉO.'],key:[GLF,'Vật lấp lánh xa nằm ngoài đầu cầu.','Ra đầu cầu (cạnh lều Ông Cóc), cầm cần câu rồi bấm vào chỗ lấp lánh.']};
 function hint(){const k=stage(),n=S.hints[k]||0;S.hints[k]=n+1;let to=HINT[k][0];if(k==='rot'){const r=chain().recv;to=[P[Math.min(r,2)].tx,P[Math.min(r,2)].ty]}S.hintTo=to;S.hintT=T;say('✨ '+HINT[k][Math.min(2,n+1)]+(n===0?' <span style="opacity:.6">(bấm lần nữa để rõ hơn)</span>':''),7000)}
 // ---- ending
 function startEnding(){S.ending=true;S.endT=T;Q=[];go('lake',true);['back','hint','jbtn'].forEach(id=>$(id).style.display='none');$('inv').style.display='none';sfx('swell');

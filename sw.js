@@ -1,10 +1,10 @@
 // Khu Rừng Ngủ Quên — service worker
 // MỖI LẦN CẬP NHẬT GAME: tăng số VERSION bên dưới (và trong index.html), thêm file chương mới vào FILES.
-const VERSION = '1.1.0';
+const VERSION = '1.4.0';
 const CACHE = 'krnq-' + VERSION, FONTS = 'krnq-fonts';
 const FILES = [
   './', 'index.html', 'manifest.webmanifest',
-  'chapters/ch1.html', 'chapters/ch2.html',
+  'chapters/ch1.html', 'chapters/ch2.html', 'chapters/ch3.html', 'chapters/ch4.html',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png', 'icons/favicon-32.png'
 ];
 self.addEventListener('install', e => {
