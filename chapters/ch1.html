@@ -104,6 +104,14 @@ canvas#c{position:absolute;inset:0;width:100%;height:100%;display:block}
 #ken .holes button:active{background:radial-gradient(#f0ffb0 30%,#2a5a1a 55%,rgba(40,80,20,.2) 70%);color:#183a10}
 #ken .seq{min-height:1.4em;font:600 clamp(16px,1.9vw,24px) Lora,serif;color:#2a5a1a;letter-spacing:.2em}
 @media (max-height:560px){#msg{top:auto;bottom:calc(2.5% + 4.4em);max-width:86%;font-size:13px;padding:.5em .9em}#hud{top:calc(3% + 2.6em)}.btn{font-size:11px}}
+#ken .clue{font:italic 500 clamp(12px,1.25vw,15px)/1.55 Lora,serif;color:#4a3820;margin:.2em auto .1em;max-width:34em}
+#ken .clue b{font-style:normal;color:#2a5a1a}#ken .clue .lyr{display:block;margin-top:.35em;font:600 clamp(14px,1.6vw,19px) Lora,serif;font-style:normal;color:#2a1a08;letter-spacing:.03em}
+#ken .holes button small{display:block;font:600 9px 'Be Vietnam Pro',sans-serif;opacity:.75;margin-top:-1px;letter-spacing:0}
+#ken .slots{display:flex;gap:.45em;justify-content:center;margin:.3em 0}#ken .slots span{width:2.1em;height:2.1em;border-radius:50%;border:2px dashed rgba(42,90,26,.45);display:flex;align-items:center;justify-content:center;font:600 clamp(15px,1.7vw,20px) Lora,serif;color:#1a3a10}
+#ken .slots span.on{border-style:solid;background:rgba(138,192,96,.35)}#ken .slots.bad span{border-color:#a84a2a;background:rgba(200,90,60,.2);animation:shk .4s}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+#ken .fb{min-height:1.3em;font:italic 500 clamp(12px,1.2vw,14px) Lora,serif;color:#7a3a1a}
+#ken .redo{background:none;border:1px solid rgba(60,40,20,.35);border-radius:16px;padding:.45em 1.1em;font:600 12px 'Be Vietnam Pro';color:#4a3820;cursor:pointer;margin-right:.4em}
 </style>
 </head>
 <body>
@@ -118,7 +126,7 @@ canvas#c{position:absolute;inset:0;width:100%;height:100%;display:block}
   <button class="btn" id="hint">✨ Hỏi đom đóm vàng</button>
   <div class="ov" id="paper"><div class="sheet"><div class="body"></div><button class="close">Cất đi</button></div></div>
   <div class="ov" id="journal"><div class="sheet"><h3>📖 Sổ tay</h3><p><b>Việc cần làm:</b> <i class="goal"></i></p><h3 style="font-size:1.1em;margin-top:.8em">Ghi chép</h3><ul class="notes"></ul><button class="close">Đóng sổ</button></div></div>
-  <div class="ov" id="ken"><div class="sheet"><h3>Kèn lá</h3><p class="hand" style="opacity:.8">Mỗi lỗ là một dấu thanh. Thổi sáu nốt.</p><div class="leaf"><div class="holes"><button data-n="a">a</button><button data-n="à">à</button><button data-n="á">á</button><button data-n="ả">ả</button><button data-n="ã">ã</button><button data-n="ạ">ạ</button></div></div><div class="seq"></div><button class="close">Cất kèn</button></div></div>
+  <div class="ov" id="ken"><div class="sheet"><h3>Kèn lá</h3><div class="clue"></div><div class="leaf"><div class="holes"><button data-n="a">a<small>ngang</small></button><button data-n="à">à<small>huyền</small></button><button data-n="á">á<small>sắc</small></button><button data-n="ả">ả<small>hỏi</small></button><button data-n="ã">ã<small>ngã</small></button><button data-n="ạ">ạ<small>nặng</small></button></div></div><div class="slots"></div><p class="fb"></p><button class="redo">↺ Thổi lại</button> <button class="close">Cất kèn</button></div></div>
   <div id="title">
     <h1>KHU RỪNG NGỦ QUÊN</h1>
     <h2>Chương 1 · Đánh thức</h2>
@@ -286,61 +294,66 @@ function poly(g,pts){g.beginPath();pts.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.mo
 
 // ================= Chương 1: khoảng rừng hoàng hôn =================
 const SUN=[1480,712],HORIZ=744;
-const HOLLOW={x:290,y:620,rx:50,ry:76},LANT=[600,500],STUMP=[640,868],PUD=[420,962],BUSH=[1262,884],MIRROR=[1560,968],BOX=[1088,902],NEST=[1668,300];
+const FLAT=[1730,920],SPOTS=[{x:1500,y:1032,sz:1},{x:1578,y:996,sz:2},{x:1652,y:960,sz:0}],PILE=[1346,1052],FERNB=[556,876],STR=[14,20,27];
+const HOLLOW={x:290,y:620,rx:50,ry:76},LANT=[600,500],STUMP=[640,868],PUD=[420,962],BUSH=[1262,884],MIRROR=[1716,906],BOX=[1088,902],NEST=[1668,300];
 const FLW=[{k:0,name:'Đỏ',x:1404,y:906,col:'#d83a2a'},{k:1,name:'Tím',x:1176,y:846,col:'#8a5ad8'},{k:2,name:'Trắng',x:782,y:886,col:'#f4f0e8'},{k:3,name:'Vàng',x:520,y:874,col:'#f0c030'}];
 const CARVE=[{x:330,y:390,n:1,txt:'Rừng ơi'},{x:1200,y:540,n:2,txt:'ngủ đi'},{x:1700,y:520,n:3,txt:'trăng về'}];
 function clearingDraw(g){const R=rng(17);
   // sunset sky
-  const sk=g.createLinearGradient(0,LY,0,HORIZ+40);sk.addColorStop(0,'#2a2a5a');sk.addColorStop(.38,'#8a4a6a');sk.addColorStop(.66,'#e8806a');sk.addColorStop(.86,'#ffc890');sk.addColorStop(1,'#ffe0a8');g.fillStyle=sk;g.fillRect(LX,LY,LW,HORIZ+40-LY);
-  for(let i=0;i<9;i++){const x=LX+R()*LW,y=120+R()*360,w=200+R()*380;const cg=g.createLinearGradient(0,y-20,0,y+20);cg.addColorStop(0,'rgba(255,190,150,0)');cg.addColorStop(.5,`rgba(255,${150+R()*60|0},${120+R()*40|0},.35)`);cg.addColorStop(1,'rgba(255,190,150,0)');g.fillStyle=cg;g.beginPath();g.ellipse(x,y,w,14+R()*16,0,0,7);g.fill()}
+  const sk=g.createLinearGradient(0,LY,0,HORIZ+40);sk.addColorStop(0,'#0c0a1c');sk.addColorStop(.38,'#2e1a36');sk.addColorStop(.66,'#7a3040');sk.addColorStop(.86,'#d8643e');sk.addColorStop(1,'#ffb064');g.fillStyle=sk;g.fillRect(LX,LY,LW,HORIZ+40-LY);
+  for(let i=0;i<9;i++){const x=LX+R()*LW,y=120+R()*360,w=200+R()*380;const cg=g.createLinearGradient(0,y-20,0,y+20);cg.addColorStop(0,'rgba(255,190,150,0)');cg.addColorStop(.5,`rgba(255,${120+R()*60|0},${90+R()*40|0},.2)`);cg.addColorStop(1,'rgba(255,190,150,0)');g.fillStyle=cg;g.beginPath();g.ellipse(x,y,w,14+R()*16,0,0,7);g.fill()}
   // far hills
-  for(let k=0;k<4;k++){g.fillStyle=['#a85a6a','#7a4a62','#55384e','#3a283a'][k];g.beginPath();g.moveTo(LX,HORIZ+60);for(let x=LX;x<=LX+LW;x+=14){g.lineTo(x,HORIZ-80+k*28-Math.abs(Math.sin(x*.004+k*1.7))*(90-k*14)-Math.abs(Math.sin(x*.017+k))*16)}g.lineTo(LX+LW,1300);g.lineTo(LX,1300);g.fill()}
+  for(let k=0;k<4;k++){g.fillStyle=['#4a2232','#331828','#22101c','#160a12'][k];g.beginPath();g.moveTo(LX,HORIZ+60);for(let x=LX;x<=LX+LW;x+=14){g.lineTo(x,HORIZ-80+k*28-Math.abs(Math.sin(x*.004+k*1.7))*(90-k*14)-Math.abs(Math.sin(x*.017+k))*16)}g.lineTo(LX+LW,1300);g.lineTo(LX,1300);g.fill()}
   // far tree line
-  for(let i=0;i<70;i++){const x=LX+R()*LW,h=80+R()*160,y=HORIZ+10;g.fillStyle=i%2?'#2a1a26':'#33202c';g.beginPath();g.moveTo(x,y-h);g.lineTo(x-h*.25,y);g.lineTo(x+h*.25,y);g.fill()}
+  for(let i=0;i<70;i++){const x=LX+R()*LW,h=80+R()*160,y=HORIZ+10;g.fillStyle=i%2?'#0e080c':'#130a10';g.beginPath();g.moveTo(x,y-h);g.lineTo(x-h*.25,y);g.lineTo(x+h*.25,y);g.fill()}
   // ground
-  const gg=g.createLinearGradient(0,HORIZ,0,LY+LH);gg.addColorStop(0,'#5a4a2a');gg.addColorStop(.25,'#4a5a28');gg.addColorStop(1,'#16200e');g.fillStyle=gg;g.fillRect(LX,HORIZ,LW,LY+LH-HORIZ);
-  const lg=g.createRadialGradient(SUN[0],HORIZ+40,20,SUN[0],HORIZ+40,700);lg.addColorStop(0,'rgba(255,200,120,.5)');lg.addColorStop(1,'rgba(255,200,120,0)');g.fillStyle=lg;g.fillRect(LX,HORIZ,LW,500);
+  const gg=g.createLinearGradient(0,HORIZ,0,LY+LH);gg.addColorStop(0,'#2a2014');gg.addColorStop(.25,'#1e2610');gg.addColorStop(1,'#060904');g.fillStyle=gg;g.fillRect(LX,HORIZ,LW,LY+LH-HORIZ);
+  const lg=g.createRadialGradient(SUN[0],HORIZ+40,20,SUN[0],HORIZ+40,700);lg.addColorStop(0,'rgba(255,170,90,.42)');lg.addColorStop(1,'rgba(255,200,120,0)');g.fillStyle=lg;g.fillRect(LX,HORIZ,LW,500);
   // moss path
-  g.fillStyle='rgba(120,110,60,.35)';g.beginPath();g.moveTo(860,LY+LH);g.quadraticCurveTo(940,900,1000,HORIZ+20);g.lineTo(1040,HORIZ+20);g.quadraticCurveTo(1060,920,1180,LY+LH);g.fill();
-  for(let i=0;i<500;i++){const x=LX+R()*LW,y=HORIZ+20+R()*(LY+LH-HORIZ);g.strokeStyle=R()<.5?'#5a7a2a':'#3a5a1e';g.lineWidth=1.4;g.beginPath();g.moveTo(x,y);g.lineTo(x+(R()-.5)*8,y-6-R()*14*(y/900));g.stroke()}
+  g.fillStyle='rgba(70,60,30,.35)';g.beginPath();g.moveTo(860,LY+LH);g.quadraticCurveTo(940,900,1000,HORIZ+20);g.lineTo(1040,HORIZ+20);g.quadraticCurveTo(1060,920,1180,LY+LH);g.fill();
+  for(let i=0;i<500;i++){const x=LX+R()*LW,y=HORIZ+20+R()*(LY+LH-HORIZ);g.strokeStyle=R()<.5?'#2e4216':'#1e300e';g.lineWidth=1.4;g.beginPath();g.moveTo(x,y);g.lineTo(x+(R()-.5)*8,y-6-R()*14*(y/900));g.stroke()}
   // mid trees (back)
-  g.save();g.beginPath();g.rect(LX,LY,LW,HORIZ+58-LY);g.clip();tree(g,R,822,HORIZ+40,700,62,'#2a1c16','#4a5a2a',.5,'rgba(255,180,110,.5)','rgba(0,0,0,.35)');
-  tree(g,R,1184,HORIZ+20,620,58,'#2e1e18','#4a5a2a',.4,'rgba(255,180,110,.5)','rgba(0,0,0,.3)');g.restore();
+  g.save();g.beginPath();g.rect(LX,LY,LW,HORIZ+58-LY);g.clip();tree(g,R,822,HORIZ+40,700,62,'#0e0806','#26300f',.5,'rgba(255,170,100,.7)','rgba(0,0,0,.35)');
+  tree(g,R,1184,HORIZ+20,620,58,'#100a08','#26300f',.4,'rgba(255,170,100,.7)','rgba(0,0,0,.3)');g.restore();
   for(const [tx,tb,tw] of [[822,HORIZ+40,62],[1184,HORIZ+20,58]]){const sh=g.createRadialGradient(tx,tb+20,10,tx,tb+20,tw*3);sh.addColorStop(0,'rgba(10,14,4,.45)');sh.addColorStop(1,'rgba(10,14,4,0)');g.fillStyle=sh;g.fillRect(tx-tw*3,tb-40,tw*6,100);
-    for(let i=0;i<160;i++){const x=tx+(R()-.5)*tw*5.4,y=tb+R()*36;g.strokeStyle=R()<.5?'#4a6a26':'#36521c';g.lineWidth=1.8;g.beginPath();g.moveTo(x,y+4);g.lineTo(x+(R()-.5)*9,y-10-R()*16);g.stroke()}}
+    for(let i=0;i<160;i++){const x=tx+(R()-.5)*tw*5.4,y=tb+R()*36;g.strokeStyle=R()<.5?'#26380f':'#1a2a0a';g.lineWidth=1.8;g.beginPath();g.moveTo(x,y+4);g.lineTo(x+(R()-.5)*9,y-10-R()*16);g.stroke()}}
   // right tree with nest
-  {const x=1700;const tg=g.createLinearGradient(x-110,0,x+110,0);tg.addColorStop(0,'#3a2418');tg.addColorStop(.3,'#6a4a2c');tg.addColorStop(1,'#1e120c');g.fillStyle=tg;g.beginPath();g.moveTo(x-80,LY);g.lineTo(x-100,820);g.quadraticCurveTo(x-200,900,x-260,930);g.lineTo(x+260,930);g.quadraticCurveTo(x+180,900,x+120,820);g.lineTo(x+90,LY);g.fill();
-    g.strokeStyle='rgba(255,190,120,.55)';g.lineWidth=5;g.beginPath();g.moveTo(x-82,LY);g.lineTo(x-100,820);g.stroke();
-    g.strokeStyle='#3a2418';g.lineCap='round';g.lineWidth=26;g.beginPath();g.moveTo(x-60,330);g.quadraticCurveTo(x-120,300,x-200,250);g.stroke();
+  {const x=1700;const tg=g.createLinearGradient(x-110,0,x+110,0);tg.addColorStop(0,'#120a06');tg.addColorStop(.3,'#24160c');tg.addColorStop(1,'#070403');g.fillStyle=tg;g.beginPath();g.moveTo(x-80,LY);g.lineTo(x-100,820);g.quadraticCurveTo(x-200,900,x-260,930);g.lineTo(x+260,930);g.quadraticCurveTo(x+180,900,x+120,820);g.lineTo(x+90,LY);g.fill();
+    g.strokeStyle='rgba(255,170,100,.8)';g.lineWidth=5;g.beginPath();g.moveTo(x-82,LY);g.lineTo(x-100,820);g.stroke();
+    g.strokeStyle='#150c07';g.lineCap='round';g.lineWidth=26;g.beginPath();g.moveTo(x-60,330);g.quadraticCurveTo(x-120,300,x-200,250);g.stroke();
     g.fillStyle='#4a3020';g.beginPath();g.ellipse(NEST[0],NEST[1],46,16,0,0,Math.PI);g.fill();g.strokeStyle='#6a4a2a';g.lineWidth=2;for(let i=0;i<30;i++){const a=R()*Math.PI;g.beginPath();g.moveTo(NEST[0]+Math.cos(a)*44,NEST[1]+Math.sin(a)*14);g.lineTo(NEST[0]+Math.cos(a+1)*38,NEST[1]+Math.sin(a+.7)*12);g.stroke()}
     for(let i=0;i<40;i++){g.strokeStyle=`rgba(0,0,0,${.2+R()*.2})`;g.lineWidth=2+R()*3;let xx=x-90+R()*180;g.beginPath();g.moveTo(xx,LY);for(let y=LY;y<820;y+=30){xx+=(R()-.5)*6;g.lineTo(xx,y)}g.stroke()}}
   // hollow tree (left)
-  {const x=280;const tg=g.createLinearGradient(80,0,480,0);tg.addColorStop(0,'#1e120c');tg.addColorStop(.6,'#5a3a24');tg.addColorStop(.9,'#7a5232');tg.addColorStop(1,'#2a1a10');g.fillStyle=tg;
+  {const x=280;const tg=g.createLinearGradient(80,0,480,0);tg.addColorStop(0,'#070403');tg.addColorStop(.6,'#1e120a');tg.addColorStop(.9,'#33200f');tg.addColorStop(1,'#0e0805');g.fillStyle=tg;
     g.beginPath();g.moveTo(130,LY);g.lineTo(120,760);g.quadraticCurveTo(40,880,-60,930);g.lineTo(620,930);g.quadraticCurveTo(470,880,440,760);g.lineTo(420,LY);g.fill();
-    g.strokeStyle='rgba(255,190,120,.6)';g.lineWidth=6;g.beginPath();g.moveTo(420,LY);g.lineTo(440,760);g.quadraticCurveTo(470,880,600,925);g.stroke();
+    g.strokeStyle='rgba(255,170,100,.85)';g.lineWidth=6;g.beginPath();g.moveTo(420,LY);g.lineTo(440,760);g.quadraticCurveTo(470,880,600,925);g.stroke();
     for(let i=0;i<60;i++){g.strokeStyle=R()<.6?'rgba(10,4,2,.4)':'rgba(170,120,80,.14)';g.lineWidth=2+R()*5;let xx=130+R()*300;g.beginPath();g.moveTo(xx,LY);for(let y=LY;y<880;y+=30){xx+=(R()-.5)*7;g.lineTo(xx,y)}g.stroke()}
-    for(let i=0;i<60;i++){g.fillStyle=`rgba(${R()<.5?'80,110,40':'120,140,60'},${.25+R()*.35})`;g.beginPath();g.ellipse(130+R()*300,300+R()*600,8+R()*24,5+R()*10,R(),0,7);g.fill()}
+    for(let i=0;i<60;i++){g.fillStyle=`rgba(${R()<.5?'40,60,20':'60,80,30'},${.25+R()*.35})`;g.beginPath();g.ellipse(130+R()*300,300+R()*600,8+R()*24,5+R()*10,R(),0,7);g.fill()}
     // the hollow
-    g.fillStyle='#3a2416';g.beginPath();g.ellipse(HOLLOW.x,HOLLOW.y,HOLLOW.rx+12,HOLLOW.ry+12,0,0,7);g.fill();g.fillStyle='#070302';g.beginPath();g.ellipse(HOLLOW.x,HOLLOW.y,HOLLOW.rx,HOLLOW.ry,0,0,7);g.fill();
+    g.fillStyle='#160c06';g.beginPath();g.ellipse(HOLLOW.x,HOLLOW.y,HOLLOW.rx+12,HOLLOW.ry+12,0,0,7);g.fill();g.fillStyle='#070302';g.beginPath();g.ellipse(HOLLOW.x,HOLLOW.y,HOLLOW.rx,HOLLOW.ry,0,0,7);g.fill();
     // low branch to the right (lantern hangs here)
-    g.strokeStyle='#3a2416';g.lineWidth=34;g.lineCap='round';g.beginPath();g.moveTo(420,470);g.quadraticCurveTo(520,400,700,392);g.stroke();g.lineWidth=14;g.beginPath();g.moveTo(640,396);g.quadraticCurveTo(700,360,760,340);g.stroke();
-    g.strokeStyle='rgba(255,190,120,.45)';g.lineWidth=3;g.beginPath();g.moveTo(430,452);g.quadraticCurveTo(520,384,700,376);g.stroke();
+    g.strokeStyle='#140a05';g.lineWidth=34;g.lineCap='round';g.beginPath();g.moveTo(420,470);g.quadraticCurveTo(520,400,700,392);g.stroke();g.lineWidth=14;g.beginPath();g.moveTo(640,396);g.quadraticCurveTo(700,360,760,340);g.stroke();
+    g.strokeStyle='rgba(255,170,100,.7)';g.lineWidth=3;g.beginPath();g.moveTo(430,452);g.quadraticCurveTo(520,384,700,376);g.stroke();
     // roots
-    for(let i=0;i<6;i++){const s=i<3?-1:1,x0=s<0?150+i*30:420-(i-3)*30,len=120+R()*160;g.fillStyle=i%2?'#3a2416':'#4a2e1c';g.beginPath();g.moveTo(x0-24,800);g.quadraticCurveTo(x0+s*len*.5,900,x0+s*len,935);g.lineTo(x0+s*len-s*14,948);g.quadraticCurveTo(x0+s*len*.4,920,x0+24,830);g.fill()}}
+    for(let i=0;i<6;i++){const s=i<3?-1:1,x0=s<0?150+i*30:420-(i-3)*30,len=120+R()*160;g.fillStyle=i%2?'#140a05':'#1c1008';g.beginPath();g.moveTo(x0-24,800);g.quadraticCurveTo(x0+s*len*.5,900,x0+s*len,935);g.lineTo(x0+s*len-s*14,948);g.quadraticCurveTo(x0+s*len*.4,920,x0+24,830);g.fill()}}
   // stump
-  {const [x,y]=STUMP;g.fillStyle='#4a3020';g.beginPath();g.moveTo(x-62,y);g.lineTo(x-54,y-44);g.lineTo(x+54,y-44);g.lineTo(x+64,y);g.fill();const sg=g.createRadialGradient(x,y-44,3,x,y-44,58);sg.addColorStop(0,'#d8b080');sg.addColorStop(1,'#7a5432');g.fillStyle=sg;g.beginPath();g.ellipse(x,y-44,56,13,0,0,7);g.fill();
+  {const [x,y]=STUMP;g.fillStyle='#22160c';g.beginPath();g.moveTo(x-62,y);g.lineTo(x-54,y-44);g.lineTo(x+54,y-44);g.lineTo(x+64,y);g.fill();const sg=g.createRadialGradient(x,y-44,3,x,y-44,58);sg.addColorStop(0,'#a8845a');sg.addColorStop(1,'#4a3220');g.fillStyle=sg;g.beginPath();g.ellipse(x,y-44,56,13,0,0,7);g.fill();
     g.strokeStyle='rgba(80,50,20,.6)';g.lineWidth=1;for(let k=1;k<5;k++){g.beginPath();g.ellipse(x,y-44,k*12,k*2.6,0,0,7);g.stroke()}g.strokeStyle='rgba(30,15,5,.6)';g.lineWidth=3;g.beginPath();g.moveTo(x-30,y-36);g.lineTo(x-14,y-12);g.moveTo(x+20,y-34);g.lineTo(x+34,y-8);g.stroke()}
   // puddle
   {const [x,y]=PUD;const pg=g.createLinearGradient(0,y-30,0,y+30);pg.addColorStop(0,'#e89070');pg.addColorStop(1,'#5a3a4a');g.fillStyle='#2a3418';g.beginPath();g.ellipse(x,y,128,36,0,0,7);g.fill();g.fillStyle=pg;g.beginPath();g.ellipse(x,y,112,28,0,0,7);g.fill();
     g.fillStyle='rgba(255,230,190,.35)';g.fillRect(x-60,y-4,70,2);g.fillRect(x-20,y+8,50,1.5)}
   // stream (right)
-  {g.save();g.beginPath();g.moveTo(1380,HORIZ+14);g.bezierCurveTo(1460,820,1380,900,1460,LY+LH);g.lineTo(LX+LW,LY+LH);g.lineTo(LX+LW,HORIZ+6);g.closePath();const wg=g.createLinearGradient(0,HORIZ,0,LY+LH);wg.addColorStop(0,'#f8c08e');wg.addColorStop(.18,'#b87a78');wg.addColorStop(.55,'#4a4656');wg.addColorStop(1,'#1c2430');g.fillStyle=wg;g.fill();g.clip();
+  {g.save();g.beginPath();g.moveTo(1380,HORIZ+14);g.bezierCurveTo(1460,820,1380,900,1460,LY+LH);g.lineTo(LX+LW,LY+LH);g.lineTo(LX+LW,HORIZ+6);g.closePath();const wg=g.createLinearGradient(0,HORIZ,0,LY+LH);wg.addColorStop(0,'#d8844e');wg.addColorStop(.18,'#7a3e44');wg.addColorStop(.55,'#2a2030');wg.addColorStop(1,'#0a0e16');g.fillStyle=wg;g.fill();g.clip();
     for(let i=0;i<120;i++){const y=HORIZ+10+Math.pow(R(),1.6)*(LY+LH-HORIZ),x=1380+R()*620,w=20+R()*90*(y/800);g.strokeStyle=`rgba(255,${190+R()*50|0},150,${.08+R()*.22*(1-(y-HORIZ)/500)})`;g.lineWidth=1+R()*2;g.beginPath();g.moveTo(x,y);g.lineTo(x+w,y);g.stroke()}
     const sg=g.createRadialGradient(SUN[0],HORIZ+20,10,SUN[0],HORIZ+60,260);sg.addColorStop(0,'rgba(255,230,170,.55)');sg.addColorStop(1,'rgba(255,230,170,0)');g.fillStyle=sg;g.fillRect(1300,HORIZ,700,400);g.restore();
     g.strokeStyle='#3a3020';g.lineWidth=16;g.beginPath();g.moveTo(1380,HORIZ+14);g.bezierCurveTo(1460,820,1380,900,1460,LY+LH);g.stroke();g.strokeStyle='rgba(255,200,140,.35)';g.lineWidth=2;g.beginPath();g.moveTo(1388,HORIZ+14);g.bezierCurveTo(1468,820,1388,900,1468,LY+LH);g.stroke();
     for(let i=0;i<90;i++){const t=R(),y=HORIZ+14+t*(LY+LH-HORIZ-14),x=1380+Math.sin(t*3.14)*40+t*80-8+R()*14;g.strokeStyle=R()<.5?'#4a6a24':'#3a5a1e';g.lineWidth=1.6;g.beginPath();g.moveTo(x,y);g.lineTo(x+(R()-.3)*10,y-8-R()*18*(y/900));g.stroke()}
-    for(let i=0;i<16;i++){const x=1460+R()*500,y=830+R()*230;g.fillStyle=R()<.5?'#4a4a44':'#5a5a52';g.beginPath();g.ellipse(x,y,16+R()*30,8+R()*12,0,0,7);g.fill();g.fillStyle='rgba(255,200,150,.25)';g.beginPath();g.ellipse(x-4,y-5,10+R()*12,3,0,0,7);g.fill()}
-    g.fillStyle='#4a4a44';g.beginPath();g.ellipse(MIRROR[0]-28,MIRROR[1],30,18,0,0,7);g.ellipse(MIRROR[0]+30,MIRROR[1]+2,32,20,0,0,7);g.fill()}
+    for(const [x,y,rx] of [[1860,860,30],[1900,1000,40],[1790,1110,34]]){g.fillStyle='#2a2826';g.beginPath();g.ellipse(x,y,rx,rx*.45,0,0,7);g.fill();g.fillStyle='rgba(255,170,110,.18)';g.beginPath();g.ellipse(x-4,y-rx*.25,rx*.6,3,0,0,7);g.fill()}
+    // flat rock in the middle of the stream (mirror lies on it)
+    g.fillStyle='rgba(0,0,0,.35)';g.beginPath();g.ellipse(FLAT[0],FLAT[1]+10,74,20,0,0,7);g.fill();g.fillStyle='#34302c';g.beginPath();g.ellipse(FLAT[0],FLAT[1],70,22,0,0,7);g.fill();g.fillStyle='#4a4440';g.beginPath();g.ellipse(FLAT[0]-4,FLAT[1]-5,60,14,0,0,7);g.fill();
+    g.strokeStyle='rgba(255,180,120,.3)';g.lineWidth=2;g.beginPath();g.ellipse(FLAT[0]-4,FLAT[1]-5,60,14,0,Math.PI*1.05,Math.PI*1.9);g.stroke();
+    // riverbed moss rings where the stepping stones used to sit
+    SPOTS.forEach(p=>{const r=STR[p.sz];g.strokeStyle='rgba(60,110,40,.75)';g.lineWidth=3.5;g.beginPath();g.ellipse(p.x,p.y+4,r+4,(r+4)*.5,0,0,7);g.stroke();g.strokeStyle='rgba(30,60,20,.6)';g.lineWidth=2;g.beginPath();g.ellipse(p.x,p.y+4,r,r*.5,0,0,7);g.stroke()})}
   // stones & ferns mid
   for(let i=0;i<10;i++){const x=480+R()*900,y=900+R()*60;if(Math.abs(x-960)<160)continue;g.fillStyle='#4a4a3a';g.beginPath();g.ellipse(x,y,14+R()*20,7+R()*8,0,0,7);g.fill()}
   fern(g,R,700,930,140,-1.3,'#2a3a1a');fern(g,R,1310,930,150,-1.8,'#2a3a1a');fern(g,R,180,960,170,-1.1,'#24321a');
@@ -353,9 +366,9 @@ const CLEAR_FORE=makeLayer(.4,6,g=>{const R=rng(9);for(let i=0;i<5;i++)fern(g,R,
 const BOXANS=[0,1,2,3],TONES=['a','à','á','ả','ã','ạ'],SONG=['à','a','a','ả','a','à'];
 function newState(){return{view:'clear',inv:{},sel:null,said:{},notes:[],goal:'Đi theo chú đom đóm vàng.',hints:{},
   knife:false,vines:false,lantern:false,ff:0,sen:false,mirror:false,bloom:false,bloomT:-9,hole:false,carve:[false,false,false],slots:[2,3,0,1],box:false,boxT:-9,ken:false,
-  song:false,songT:-9,tl:null,awake:false,awT:0,seeds:[false,false,false],hintTo:null,hintT:-9,ending:false,shown:false}}
+  song:false,songT:-9,tl:null,awake:false,awT:0,seeds:[false,false,false],stones:false,placed:[false,false,false],crossed:false,fern:false,got:[false,false,false],bark:[false,false,false],hintTo:null,hintT:-9,ending:false,shown:false}}
 S=newState();
-const VIEWS={clear:[960,540,1],branch:[600,470,3],stump:[645,830,3.4],puddle:[430,948,3.4],bush:[1262,868,3.6],rocks:[1560,950,3.4],hollow:[290,620,2.6],carve0:[330,400,3.2],carve1:[1200,540,3.2],carve2:[1700,520,3.2],box:[1088,886,4.2],hand:[1010,560,2.2],nest:[1668,300,3.2]};
+const VIEWS={clear:[960,540,1],branch:[600,470,3],stump:[645,830,3.4],puddle:[430,948,3.4],bush:[1262,868,3.6],rocks:[1570,975,3.2],hollow:[290,620,2.6],carve0:[330,400,3.2],carve1:[1200,540,3.2],carve2:[1700,520,3.2],box:[1088,886,4.2],hand:[1010,560,2.2],nest:[1668,300,3.2]};
 let mouse=[.5,.5];
 function camUpdate(dt){let tg;if(S.ending){const e=T-S.awT;tg=e<6?[1000,520,1.9]:[960,520,1.12]}else{tg=VIEWS[S.view].slice();if(S.view==='clear'){tg[0]+=(mouse[0]-.5)*24;tg[1]+=(mouse[1]-.5)*12}}
   const k=1-Math.exp(-dt*(S.ending?1.3:3.6));cam.x=lerp(cam.x,tg[0],k);cam.y=lerp(cam.y,tg[1],k);cam.z=lerp(cam.z,tg[2],k)}
@@ -392,9 +405,9 @@ function senDraw(){layer(1);const [x,y]=PUD;ctx.save();ctx.translate(x+30,y-4);i
 function mirrorDraw(){if(S.mirror)return;layer(1);const [x,y]=MIRROR;ctx.fillStyle='#d8e4f0';ctx.beginPath();ctx.moveTo(x-8,y-8);ctx.lineTo(x+10,y-12);ctx.lineTo(x+6,y+6);ctx.lineTo(x-10,y+4);ctx.closePath();ctx.fill();ctx.strokeStyle='#8a9aa8';ctx.lineWidth=1;ctx.stroke();
   const tw=Math.max(0,Math.sin(T*1.6))**6;ctx.globalCompositeOperation='lighter';ctx.globalAlpha=tw;ctx.drawImage(SOFT,x-20,y-22,40,40);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}
 function hollowDraw(){layer(1);if(!S.hole&&S.ff>=2&&S.view==='hollow'&&S.sel==='long'){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.5;ctx.drawImage(GLOW,HOLLOW.x-70,HOLLOW.y-70,140,140);ctx.globalAlpha=.9;ctx.drawImage(TEAL,HOLLOW.x+6,HOLLOW.y+20,26,26);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}}
-function carvings(){layer(1);CARVE.forEach((c,i)=>{const mk_=(col,dx,dy)=>{ctx.strokeStyle=col;ctx.lineCap='round';ctx.lineWidth=2.2;for(let k=0;k<c.n;k++){const xx=c.x+dx+(k-(c.n-1)/2)*7;ctx.beginPath();ctx.moveTo(xx,c.y-30+dy);ctx.lineTo(xx,c.y-13+dy);ctx.stroke()}ctx.lineWidth=1.5;for(let k=0;k<4;k++){ctx.beginPath();ctx.moveTo(c.x-15+k*9+dx,c.y-6+dy);ctx.quadraticCurveTo(c.x-11+k*9+dx,c.y+2+dy,c.x-9+k*9+dx,c.y+8+dy);ctx.stroke()}};
+function carvings(){layer(1);CARVE.forEach((c,i)=>{if(!S.bark[i]){barkShape(ctx,i,c.x,c.y-12,1.15,'#8a6a46');ctx.save();barkShape(ctx,i,c.x,c.y-12,1.15,'rgba(0,0,0,0)');ctx.clip();ctx.strokeStyle='rgba(60,36,18,.35)';ctx.lineWidth=1;for(let k=-40;k<40;k+=5){ctx.beginPath();ctx.moveTo(c.x+k,c.y-50);ctx.lineTo(c.x+k+3,c.y+30);ctx.stroke()}ctx.restore();ctx.strokeStyle='rgba(20,10,4,.6)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(c.x+30,c.y+6);ctx.lineTo(c.x+36,c.y+14);ctx.stroke();return}const mk_=(col,dx,dy)=>{ctx.strokeStyle=col;ctx.lineCap='round';ctx.lineWidth=2.2;for(let k=0;k<c.n;k++){const xx=c.x+dx+(k-(c.n-1)/2)*7;ctx.beginPath();ctx.moveTo(xx,c.y-30+dy);ctx.lineTo(xx,c.y-13+dy);ctx.stroke()}ctx.lineWidth=1.5;for(let k=0;k<4;k++){ctx.beginPath();ctx.moveTo(c.x-15+k*9+dx,c.y-6+dy);ctx.quadraticCurveTo(c.x-11+k*9+dx,c.y+2+dy,c.x-9+k*9+dx,c.y+8+dy);ctx.stroke()}};
   mk_('rgba(10,4,0,.7)',-1,-1);mk_('rgba(236,196,140,.5)',.8,.8);
-  const show=S.carve[i]?1:0,near=S.sel==='long'&&S.ff===3&&S.view==='carve'+i;if(!S.carve[i]&&S.ff===3&&S.view==='clear'){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.35+.25*Math.sin(T*2.4+i*2);ctx.drawImage(TEAL,c.x-40,c.y-34,80,68);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}const a=Math.max(show*.8,near?1:0);if(a>0){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=a*.5;ctx.drawImage(TEAL,c.x-80,c.y-50,160,100);ctx.globalAlpha=a;ctx.globalCompositeOperation='source-over';ctx.fillStyle='rgba(220,255,220,.95)';ctx.font='italic 600 15px Lora,serif';ctx.textAlign='center';ctx.fillText(c.txt,c.x,c.y+28);ctx.fillStyle='rgba(220,255,220,.8)';ctx.fillRect(c.x-36,c.y-24,1,0);ctx.globalAlpha=1}})}
+  const show=S.carve[i]?1:0,near=S.sel==='long'&&S.ff===3&&S.view==='carve'+i;if(!S.carve[i]&&S.ff===3&&S.view==='clear'&&S.bark[i]){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.35+.25*Math.sin(T*2.4+i*2);ctx.drawImage(TEAL,c.x-40,c.y-34,80,68);ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'}const a=Math.max(show*.8,near?1:0);if(a>0){ctx.globalCompositeOperation='lighter';ctx.globalAlpha=a*.5;ctx.drawImage(TEAL,c.x-80,c.y-50,160,100);ctx.globalAlpha=a;ctx.globalCompositeOperation='source-over';ctx.fillStyle='rgba(220,255,220,.95)';ctx.font='italic 600 15px Lora,serif';ctx.textAlign='center';ctx.fillText(c.txt,c.x,c.y+28);ctx.fillStyle='rgba(220,255,220,.8)';ctx.fillRect(c.x-36,c.y-24,1,0);ctx.globalAlpha=1}})}
 function boxDraw(){layer(1);const [x,y]=BOX,o=S.box?ss(clamp((T-S.boxT)/.8)):0;ctx.fillStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.ellipse(x,y+22,86,10,0,0,7);ctx.fill();
   const g=ctx.createLinearGradient(0,y-16,0,y+20);g.addColorStop(0,'#7a5a3a');g.addColorStop(1,'#3a2414');ctx.fillStyle=g;rr(ctx,x-80,y-16,160,36,6);ctx.fill();ctx.strokeStyle='rgba(120,170,80,.6)';ctx.lineWidth=2;ctx.strokeRect(x-76,y-12,152,28);
   for(let i=0;i<4;i++){const cx=x-54+i*36;ctx.fillStyle='#2a1a10';ctx.beginPath();ctx.arc(cx,y+2,13,0,7);ctx.fill();const f=FLW[S.slots[i]];ctx.save();ctx.translate(cx,y+2);for(let p=0;p<6;p++){const a=p*1.047;ctx.fillStyle=f.col;ctx.beginPath();ctx.ellipse(Math.cos(a)*5,Math.sin(a)*5,4.4,2.6,a,0,7);ctx.fill()}ctx.fillStyle='#ffd860';ctx.beginPath();ctx.arc(0,0,2.4,0,7);ctx.fill();ctx.restore()}
@@ -403,12 +416,12 @@ function boxDraw(){layer(1);const [x,y]=BOX,o=S.box?ss(clamp((T-S.boxT)/.8)):0;c
 function bird(){layer(1);const [nx,ny]=NEST;let x=nx,y=ny-10,fly=0;if(S.song){fly=clamp((T-S.songT-1.5)/4);if(fly>=1)return;x=nx+fly*700;y=ny-10-Math.sin(fly*Math.PI)*120-fly*200}
   ctx.save();ctx.translate(x,y);ctx.fillStyle='#2a1a14';ctx.beginPath();ctx.ellipse(0,0,14,10,0,0,7);ctx.fill();ctx.beginPath();ctx.arc(-12,-6,7,0,7);ctx.fill();ctx.fillStyle='#e8a030';ctx.beginPath();ctx.moveTo(-19,-6);ctx.lineTo(-25,-4);ctx.lineTo(-19,-3);ctx.fill();
   if(fly>0){const w=Math.sin(T*20)*14;ctx.fillStyle='#2a1a14';ctx.beginPath();ctx.moveTo(-4,-4);ctx.lineTo(4,-10-w);ctx.lineTo(10,-2);ctx.fill()}else{ctx.fillStyle='#e8d8b0';ctx.font='600 12px serif';ctx.fillText('z',10+Math.sin(T)*2,-16-((T*8)%12))}ctx.restore()}
-function seedsDraw(){layer(1);const pts=[[NEST[0]+6,NEST[1]-4,S.song&&T-S.songT>4],[300,682,S.ff===3&&S.lantern],[1602,1010,S.song]];pts.forEach(([x,y,vis],i)=>{if(S.seeds[i]||!vis)return;ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.6+.4*Math.sin(T*3+i);ctx.drawImage(GLOW,x-12,y-12,24,24);ctx.globalAlpha=1;ctx.fillStyle='#fff6c0';ctx.beginPath();ctx.ellipse(x,y,3,4.4,.4,0,7);ctx.fill();ctx.globalCompositeOperation='source-over'})}
+function seedsDraw(){layer(1);const pts=[[NEST[0]+6,NEST[1]-4,S.song&&T-S.songT>4],[300,682,S.ff===3&&S.lantern],[1806,1064,S.song]];pts.forEach(([x,y,vis],i)=>{if(S.seeds[i]||!vis)return;ctx.globalCompositeOperation='lighter';ctx.globalAlpha=.6+.4*Math.sin(T*3+i);ctx.drawImage(GLOW,x-12,y-12,24,24);ctx.globalAlpha=1;ctx.fillStyle='#fff6c0';ctx.beginPath();ctx.ellipse(x,y,3,4.4,.4,0,7);ctx.fill();ctx.globalCompositeOperation='source-over'})}
 function streamFlow(){layer(1);const flow=S.song?1:0;ctx.globalCompositeOperation='lighter';for(let i=0;i<34;i++){const u=flow?((i*.07+T*.08)%1):(i*.07)%1;const x=lerp(1420,1880,(i%7)/7)+u*60,y=lerp(800,1060,u);ctx.fillStyle=`rgba(255,230,200,${(flow?.18:.08)*(1-u*.3)})`;ctx.fillRect(x-14,y,28,1.5)}ctx.globalCompositeOperation='source-over'}
 function spiritDraw(){const c=sctx;c.setTransform(1,0,0,1,0,0);c.clearRect(0,0,W,H);layer(1,c);const e=S.ending?T-S.awT:-1;
   RAISE=S.ending?lerp(.3,.9,ss(clamp((e-3)/2))):S.song?.3*ss(clamp((T-S.songT-1)/2)):0;
   c.save();c.shadowColor='rgba(255,200,130,.95)';c.shadowBlur=16*PX;c.translate(3,-1);silhouette(c,T*(S.song||S.ending?1:.25),'#ffd49a','rgba(255,200,140,.15)');c.restore();
-  const sway=silhouette(c,T*(S.song||S.ending?1:.25),'#22181e','rgba(34,26,30,.75)');
+  const sway=silhouette(c,T*(S.song||S.ending?1:.25),'#120c10','rgba(18,12,16,.86)');
   const R=rng(2);c.save();c.clip(bodyPath(T));c.fillStyle='rgba(80,110,50,.5)';for(let i=0;i<70;i++){c.beginPath();c.ellipse(820+R()*300,610+R()*300,2+R()*5,1.5+R()*3,R()*3,0,7);c.fill()}c.restore();
   CROWN.tips.forEach(([x,y,k,r])=>{x+=sway(y);if(k==='l'){c.fillStyle=mix('#7aa850','#4a7034',r);c.beginPath();c.ellipse(x,y,2.4,4.8,r*6,0,7);c.fill()}else{const op=S.ending?1:S.song?.6:.2;c.fillStyle='#fff6ee';for(let p=0;p<5;p++){const a=p*1.2566+r*6;c.beginPath();c.arc(x+Math.cos(a)*2.4*op+Math.cos(a)*.6,y+Math.sin(a)*2.4*op,1.2+.6*op,0,7);c.fill()}}});
   const wake=S.ending?ss(clamp((e-2)/1.5)):0;if(wake>0){c.globalCompositeOperation='lighter';for(const ex of[950,970]){c.globalAlpha=.6*wake;c.drawImage(SOFT,ex-12,386,24,24);c.globalAlpha=wake;c.fillStyle='rgb(190,255,210)';c.beginPath();c.ellipse(ex,398,4.4,1.8*wake,0,0,7);c.fill()}c.globalCompositeOperation='source-over';c.globalAlpha=1}
@@ -426,19 +439,38 @@ function leafFall(){if(!S.ending)return;const e=T-S.awT-17;if(e<0)return;const u
 
 // ================= lighting / post =================
 function lighting(){const c=lctx;c.setTransform(1,0,0,1,0,0);c.globalCompositeOperation='source-over';const d=tlDark(),e=S.ending?ss(clamp((T-S.awT-6)/6)):0;
-  const amb=[lerp(lerp(250,150,d),120,e),lerp(lerp(226,120,d),110,e),lerp(lerp(214,170,d),170,e)];c.fillStyle=`rgb(${amb[0]|0},${amb[1]|0},${amb[2]|0})`;c.fillRect(0,0,LM.width,LM.height);
+  const amb=[lerp(lerp(140,92,d),96,e),lerp(lerp(110,78,d),86,e),lerp(lerp(126,122,d),146,e)];c.fillStyle=`rgb(${amb[0]|0},${amb[1]|0},${amb[2]|0})`;c.fillRect(0,0,LM.width,LM.height);
   layer(1,c,.5);c.globalCompositeOperation='lighter';const light=(x,y,r,col,a)=>{if(a<=0)return;const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(${col},${a})`);g.addColorStop(.4,`rgba(${col},${a*.4})`);g.addColorStop(1,`rgba(${col},0)`);c.fillStyle=g;c.fillRect(x-r,y-r,r*2,r*2)};
   light(SUN[0],SUN[1],900,'255,190,120',.5*(1-d));if(S.ff===3&&S.lantern)light(cam.x,cam.y+120,260,'180,255,200',.2);if(S.ending){const h=handPos();light(h.hx,h.hy-30,500,'255,210,140',.6*flick())}light(GF.x,GF.y,140,'255,220,140',.35);
   c.globalCompositeOperation='source-over';ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='multiply';ctx.drawImage(LM,0,0,W,H);ctx.globalCompositeOperation='source-over'}
 function post(){ctx.setTransform(1,0,0,1,0,0);b1.drawImage(cvs,0,0,BL1.width,BL1.height);b2.drawImage(BL1,0,0,BL2.width,BL2.height);
   ctx.globalCompositeOperation='screen';ctx.globalAlpha=.26;ctx.drawImage(BL2,0,0,W,H);ctx.globalAlpha=.13;ctx.drawImage(BL1,0,0,W,H);ctx.globalAlpha=1;
   ctx.globalCompositeOperation='soft-light';ctx.fillStyle='rgba(255,170,120,.22)';ctx.fillRect(0,0,W,H);ctx.globalCompositeOperation='source-over';
-  const v=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.34,W/2,H/2,Math.hypot(W,H)*.6);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(10,4,12,.55)');ctx.fillStyle=v;ctx.fillRect(0,0,W,H);
+  const v=ctx.createRadialGradient(W/2,H/2,Math.min(W,H)*.34,W/2,H/2,Math.hypot(W,H)*.6);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(4,1,6,.85)');ctx.fillStyle=v;ctx.fillRect(0,0,W,H);
   ctx.globalAlpha=.045;ctx.fillStyle=ctx.createPattern(GRAIN,'repeat');const ox=Math.random()*256,oy=Math.random()*256;ctx.translate(-ox,-oy);ctx.fillRect(ox,oy,W,H);ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1}
+
+const MOTES=(()=>{const R=rng(88),a=[];for(let i=0;i<46;i++)a.push({x:R()*1920,y:200+R()*760,s:.4+R()*.8,p:R()*6,leaf:i<9});return a})();
+function atmosphere(){layer(1);const d=tlDark();ctx.globalCompositeOperation='lighter';
+  for(let i=0;i<5;i++){const a=-2.55+i*.09+Math.sin(T*.07+i)*.01,len=1500,w=40+i*26,al=(.05+.02*Math.sin(T*.4+i*1.3))*(1-d)*(S.view==='clear'?1:.4);ctx.save();ctx.translate(SUN[0],SUN[1]);ctx.rotate(a);const gr=ctx.createLinearGradient(0,0,len,0);gr.addColorStop(0,`rgba(255,200,130,${al*2})`);gr.addColorStop(1,'rgba(255,200,130,0)');ctx.fillStyle=gr;ctx.beginPath();ctx.moveTo(0,-6);ctx.lineTo(len,-w);ctx.lineTo(len,w);ctx.lineTo(0,6);ctx.fill();ctx.restore()}
+  MOTES.forEach(m=>{const x=(m.x+T*14*m.s+Math.sin(T*.6+m.p)*30)%1980-30,y=m.leaf?((m.y+T*22*m.s)%900)+100:m.y+Math.sin(T*.5+m.p)*20;
+    if(m.leaf){ctx.globalCompositeOperation='source-over';ctx.save();ctx.translate(x,y);ctx.rotate(T*m.s+m.p);ctx.fillStyle='rgba(120,60,24,.75)';ctx.beginPath();ctx.ellipse(0,0,5,2.4,0,0,7);ctx.fill();ctx.restore();ctx.globalCompositeOperation='lighter'}
+    else{ctx.globalAlpha=(.25+.25*Math.sin(T*1.7+m.p))*(1-d*.5);ctx.drawImage(SOFT,x-4,y-4,8,8);ctx.globalAlpha=1}});
+  ctx.globalCompositeOperation='source-over';
+  for(let k=0;k<3;k++){const y=890+k*40,off=(T*(8+k*5))%600;for(let x=-600+off;x<2500;x+=600){const mg=ctx.createRadialGradient(x,y,0,x,y,380);mg.addColorStop(0,'rgba(190,160,180,.075)');mg.addColorStop(1,'rgba(190,160,180,0)');ctx.fillStyle=mg;ctx.save();ctx.translate(x,y);ctx.scale(1,.12);ctx.translate(-x,-y);ctx.fillRect(x-380,y-380,760,760);ctx.restore()}}ctx.globalAlpha=1}
+
+// ---- stepping stones, bark pieces, fern
+function stoneShape(c,x,y,r){c.fillStyle='rgba(0,0,0,.35)';c.beginPath();c.ellipse(x,y+r*.25,r*1.05,r*.42,0,0,7);c.fill();c.fillStyle='#4a4640';c.beginPath();c.ellipse(x,y,r,r*.55,0,0,7);c.fill();c.fillStyle='#2e4a1e';c.beginPath();c.ellipse(x-r*.25,y-r*.1,r*.6,r*.3,0,0,7);c.fill();c.fillStyle='rgba(255,180,120,.25)';c.beginPath();c.ellipse(x+r*.2,y-r*.3,r*.4,r*.1,0,0,7);c.fill()}
+function stonesDyn(){layer(1);if(!S.stones){stoneShape(ctx,PILE[0]-26,PILE[1]+6,STR[2]);stoneShape(ctx,PILE[0]+20,PILE[1]+10,STR[1]);stoneShape(ctx,PILE[0]-2,PILE[1]-12,STR[0])}
+  SPOTS.forEach((p,i)=>{if(S.placed[i])stoneShape(ctx,p.x,p.y,STR[p.sz])})}
+function barkShape(c,k,x,y,sc,col){c.save();c.translate(x,y);c.scale(sc,sc);c.beginPath();if(k===0){c.moveTo(0,-26);c.lineTo(28,20);c.lineTo(-28,20);c.closePath()}else if(k===1){c.moveTo(-30,8);c.arc(0,8,30,Math.PI,0);c.closePath()}else{c.rect(-24,-20,48,40)}c.fillStyle=col;c.fill();c.restore()}
+function barkPiece(k,x,y,sc){barkShape(ctx,k,x,y,sc,'#3a2414');ctx.save();ctx.translate(x,y);ctx.scale(sc,sc);ctx.strokeStyle='rgba(236,196,140,.45)';ctx.lineWidth=1.4;for(let j=-1;j<=1;j++){ctx.beginPath();ctx.moveTo(-10+j*8,-6);ctx.lineTo(-6+j*8,8);ctx.stroke()}ctx.restore();ctx.strokeStyle='rgba(255,190,120,.6)';ctx.lineWidth=1.2;barkShape(ctx,k,x+.8,y-.8,sc,'rgba(0,0,0,0)');ctx.stroke()}
+function piecesDyn(){layer(1);if(!S.got[1])barkPiece(1,NEST[0]+34,NEST[1]-8,.5);if(!S.got[2])barkPiece(2,FLAT[0]+38,FLAT[1]-10,.55);
+  const R=rng(61),[fx,fy]=FERNB,op=S.fern?1:0;for(let i=0;i<7;i++){const a=-Math.PI/2+(i-3)*.42+(op?(i<3?-.7:i>3?.7:(i===3?Math.PI*.5:0)):0);fern(ctx,R,fx+(op?(i<3?-26:i>3?26:0):0),fy+8,46+R()*16,a,i%2?'#3a5a1e':'#4a6e26')}
+  if(S.fern&&!S.got[0])barkPiece(0,FERNB[0]+2,FERNB[1]-4,.55)}
 let lastDt=0;
 function render(){if(W<8||H<8){resize();if(W<8||H<8)return}ctx.setTransform(1,0,0,1,0,0);ctx.globalCompositeOperation='source-over';ctx.fillStyle='#000';ctx.fillRect(0,0,W,H);
-  layer(1);ctx.drawImage(CLEAR,LX,LY,LW,LH);if(S.view!=='clear')drawCrop('c_'+S.view);sunDraw();streamFlow();shadowSweep();carvings();hollowDraw();branchLantern();knifeDraw();senDraw();mirrorDraw();flowers();bird();seedsDraw();
-  lighting();spiritDraw();boxDraw();blueFlies();goldFly(lastDt);westFlash();leafFall();if(S.view==='clear'||S.ending){layer(1.25);ctx.drawImage(CLEAR_FORE,LX,LY,LW,LH)}post()}
+  layer(1);ctx.drawImage(CLEAR,LX,LY,LW,LH);if(S.view!=='clear')drawCrop('c_'+S.view);sunDraw();streamFlow();shadowSweep();carvings();hollowDraw();branchLantern();knifeDraw();senDraw();stonesDyn();mirrorDraw();piecesDyn();flowers();bird();seedsDraw();
+  lighting();atmosphere();spiritDraw();boxDraw();blueFlies();goldFly(lastDt);westFlash();leafFall();if(S.view==='clear'||S.ending){layer(1.25);ctx.drawImage(CLEAR_FORE,LX,LY,LW,LH)}post()}
 
 // ================= UI helpers =================
 const $=id=>document.getElementById(id);
@@ -454,10 +486,12 @@ function openJournal(){$('jbtn').classList.remove('new');const j=$('journal');j.
 const modal=()=>['paper','journal','ken'].some(id=>$(id).style.display==='flex');
 
 // ================= inventory =================
-const NAMES={dao:'Dao rựa nhỏ',guong:'Mảnh gương vỡ',ken:'Kèn lá'};
+const NAMES={dao:'Dao rựa nhỏ',guong:'Mảnh gương vỡ',ken:'Kèn lá',vo0:'Mảnh vỏ cây hình tam giác',vo1:'Mảnh vỏ cây hình bán nguyệt',vo2:'Mảnh vỏ cây hình chữ nhật',da0:'Hòn đá kê nhỏ',da1:'Hòn đá kê vừa',da2:'Hòn đá kê lớn'};
 const nameOf=k=>k==='long'?`Lồng đèn rêu (${S.ff}/3 đom đóm)`:NAMES[k];
 const IC=s=>`<svg viewBox="0 0 60 60">${s}</svg>`;
 const ICON={dao:IC('<path d="M20 34 L44 22 Q52 24 46 30 L22 40Z" fill="#c8c4b8"/><rect x="6" y="34" width="18" height="8" rx="3" fill="#6a4a2a" transform="rotate(-25 15 38)"/>'),guong:IC('<path d="M18 16 L44 12 L40 44 L14 38Z" fill="#d8e4f0" stroke="#8a9aa8"/><path d="M22 20 L34 18" stroke="#fff" stroke-width="2"/>'),
+  vo0:IC('<path d="M30 10 L52 48 L8 48Z" fill="#5a3a1e" stroke="#c89a60"/><path d="M24 30 l3 12 M32 30 l3 12" stroke="#e8c890"/>'),vo1:IC('<path d="M6 42 A24 24 0 0 1 54 42Z" fill="#5a3a1e" stroke="#c89a60"/><path d="M24 28 l3 10 M32 28 l3 10" stroke="#e8c890"/>'),vo2:IC('<rect x="12" y="14" width="36" height="32" fill="#5a3a1e" stroke="#c89a60"/><path d="M24 22 l3 14 M32 22 l3 14" stroke="#e8c890"/>'),
+  da0:IC('<ellipse cx="30" cy="34" rx="10" ry="6" fill="#6a665e"/><ellipse cx="27" cy="33" rx="5" ry="3" fill="#3a5a24"/>'),da1:IC('<ellipse cx="30" cy="34" rx="16" ry="9" fill="#6a665e"/><ellipse cx="26" cy="32" rx="8" ry="4" fill="#3a5a24"/>'),da2:IC('<ellipse cx="30" cy="34" rx="24" ry="13" fill="#6a665e"/><ellipse cx="24" cy="31" rx="12" ry="6" fill="#3a5a24"/>'),
   ken:IC('<ellipse cx="30" cy="30" rx="22" ry="8" fill="#4a8a34" transform="rotate(-20 30 30)"/><path d="M10 36 L50 22" stroke="#2a5a1a" stroke-width="2"/>')};
 function longIcon(){const lit=S.ff===3;return IC(`${lit?'<circle cx="30" cy="30" r="24" fill="rgba(180,255,200,.35)"/>':''}<ellipse cx="30" cy="14" rx="12" ry="4" fill="#3a4a24"/><path d="M18 16 Q14 32 20 46 L40 46 Q46 32 42 16Z" fill="${lit?'rgba(220,255,200,.55)':'rgba(140,170,120,.35)'}" stroke="#5a7a34" stroke-width="2"/>`+[0,1,2].map(i=>i<S.ff?`<circle cx="${24+i*6}" cy="${28+(i%2)*6}" r="2.6" fill="#e8ffd8"/>`:'').join(''))}
 function renderInv(){const inv=$('inv');inv.innerHTML='';const ks=Object.keys(S.inv).filter(k=>S.inv[k]);if(!ks.length){inv.innerHTML='<span id="empty">Túi đồ trống</span>';return}
@@ -470,20 +504,20 @@ function go(v,keep){S.view=v;if(!keep)S.sel=null;renderInv();$('back').style.dis
 
 // ================= hotspots =================
 function HS(){const v=S.view,h=[],add=(id,x,y,w,hh)=>h.push({id,x,y,w,h:hh});
-  if(v==='clear'){if(S.song&&!S.seeds[2])add('s2',1578,988,48,44);if(S.lantern&&S.ff===3&&!S.seeds[1])add('s1',276,658,48,48);
+  if(v==='clear'){if(S.song&&!S.seeds[2])add('s2',1782,1040,48,48);if(S.lantern&&S.ff===3&&!S.seeds[1])add('s1',276,658,48,48);
     add('sun',1420,650,120,100);add('branchZ',530,400,150,170);add('stumpZ',570,790,150,90);add('puddleZ',300,922,260,80);add('bushZ',1190,842,150,84);add('rocksZ',1490,928,150,84);
     add('hollowZ',220,525,140,190);add('carve0Z',282,345,96,96);add('carve1Z',1160,496,80,96);add('carve2Z',1652,466,96,104);add('boxZ',1000,868,178,60);add('nestZ',1596,248,150,90);
     FLW.forEach(f=>add('fl'+f.k,f.x-26,f.y-30,52,58));add('handZ',880,320,270,600)}
   if(v==='branch')add('vines',548,420,104,140);
-  if(v==='stump'){if(!S.knife)add('dao',600,776,110,64);add('stumpI',580,810,130,60)}
+  if(v==='stump'){if(!S.knife)add('dao',600,776,110,64);if(!S.got[0])add('fern',FERNB[0]-42,FERNB[1]-58,84,72);add('stumpI',580,810,130,60)}
   if(v==='puddle')add('sen',410,930,120,56);
   if(v==='bush')add('bush',1200,846,124,68);
-  if(v==='rocks'){if(!S.mirror)add('mirror',1536,944,48,40);if(S.song&&!S.seeds[2])add('s2',1578,988,48,44)}
+  if(v==='rocks'){if(S.song&&!S.seeds[2])add('s2',1782,1040,48,48);if(S.crossed){if(!S.mirror)add('mirror',MIRROR[0]-30,MIRROR[1]-24,56,44);if(!S.got[2])add('bark2',FLAT[0]+14,FLAT[1]-34,50,44)}else{SPOTS.forEach((p,i)=>{if(!S.placed[i])add('sp'+i,p.x-STR[p.sz]-12,p.y-20,STR[p.sz]*2+24,44)});add('flat',FLAT[0]-72,FLAT[1]-40,150,62)}if(!S.stones)add('pile',PILE[0]-60,PILE[1]-36,110,70)}
   if(v==='hollow'){if(S.lantern&&S.ff===3&&!S.seeds[1])add('s1',276,658,48,48);add('hole',236,540,108,160)}
   if(/^carve\d$/.test(v)){const i=+v[5],c=CARVE[i];add('cv'+i,c.x-110,c.y-110,220,200)}
   if(v==='box'){for(let i=0;i<4;i++)add('b'+i,1020+i*36,889,28,28);add('boxI',1006,866,164,54)}
   if(v==='hand'){const p=handPos();add('hand',p.hx-55,p.hy-70,110,120);add('face',915,340,95,110)}
-  if(v==='nest'){if(S.song&&T-S.songT>4&&!S.seeds[0])add('s0',NEST[0]-14,NEST[1]-24,40,36);add('birdN',1610,256,116,64)}
+  if(v==='nest'){if(!S.got[1])add('bark1',NEST[0]+14,NEST[1]-26,42,36);if(S.song&&T-S.songT>4&&!S.seeds[0])add('s0',NEST[0]-14,NEST[1]-24,40,36);add('birdN',1610,256,116,64)}
   return h}
 function toWorld(cx,cy){const r=cvs.getBoundingClientRect(),sx=(cx-r.left)*dpr,sy_=(cy-r.top)*dpr;return[cam.x+(sx-W/2)/(S_*cam.z),cam.y+(sy_-H/2)/(S_*cam.z)]}
 function hit(cx,cy){const [x,y]=toWorld(cx,cy);return HS().find(o=>x>=o.x&&x<=o.x+o.w&&y>=o.y&&y<=o.y+o.h)}
@@ -492,15 +526,19 @@ cvs.addEventListener('click',e=>{if(!started||S.ending||modal())return;const h=h
 
 // ================= interactions =================
 const ZOOM={branchZ:'branch',stumpZ:'stump',puddleZ:'puddle',bushZ:'bush',rocksZ:'rocks',hollowZ:'hollow',carve0Z:'carve0',carve1Z:'carve1',carve2Z:'carve2',boxZ:'box',handZ:'hand',nestZ:'nest'};
-function addFF(n,msg){S['f'+n]=true;S.ff++;sfx('ff');renderInv();say(msg+` <span style="opacity:.7">(${S.ff}/3)</span>`,5200);if(S.ff===3){note('Lồng đèn rêu đã sáng với ba chú đom đóm.');goal('Soi lồng đèn để đọc vết khắc trên thân cây, và mở chiếc hộp dưới chân Thần rừng.')}}
+function addFF(n,msg){if(S['f'+n])return;S['f'+n]=true;S.ff=[S.f1,S.f2,S.f3].filter(Boolean).length;sfx('ff');renderInv();say(msg+` <span style="opacity:.7">(${S.ff}/3)</span>`,5200);if(S.ff===3){note('Lồng đèn rêu đã sáng với ba chú đom đóm.');goal('Soi lồng đèn để đọc vết khắc trên thân cây, và mở chiếc hộp dưới chân Thần rừng.')}}
 function act(id){const sel=S.sel;
   if(ZOOM[id]){go(ZOOM[id],true);arrive(ZOOM[id]);return}
   if(/^s\d$/.test(id)){const i=+id[1];S.seeds[i]=true;sfx('secret');updHud();const n=S.seeds.filter(Boolean).length;say(`✨ Bạn nhặt được một <b>hạt giống phát sáng</b>! (${n}/3)`,4000);return}
   if(/^fl\d$/.test(id)){const f=FLW[+id[2]];say(`Một bông hoa <b>${f.name.toLowerCase()}</b>, quay mặt về phía mặt trời đang lặn.`);return}
-  if(/^cv\d$/.test(id)){const i=+id[2],c=CARVE[i];if(S.sel==='long'&&S.ff===3){if(!S.carve[i]){S.carve[i]=true;sfx('chime');note(`Vết khắc ${c.n} vạch: «${c.txt}»`)}say(`Dưới ánh đom đóm, vết khắc hiện rõ: <b>${c.n} vạch</b>, rồi dòng chữ «<i>${c.txt}</i>».`,5000);
+  if(/^cv\d$/.test(id)){const i=+id[2],c=CARVE[i];if(!S.bark[i]){const SH=['tam giác','bán nguyệt','chữ nhật'];if(/^vo\d$/.test(S.sel)){const j=+S.sel[2];if(j===i){S.bark[i]=true;drop(S.sel);sfx('click');say('Mảnh vỏ cây khít vào chỗ bong như chưa từng rời ra. Vết khắc đã liền lại, nhưng vẫn mờ quá, phải có ánh sáng mới đọc được.',5200);return}say(`Mảnh vỏ hình ${SH[j]} không khớp chỗ bong hình ${SH[i]}.`);return}
+      say(`Một mảng vỏ cây hình <b>${SH[i]}</b> đã bong mất. Vết khắc chỉ còn vài nét ở mép. Mảnh vỏ rơi đi đâu rồi? Có lẽ gió, hay chim, đã tha đi.`,5600);note(`Thân cây ${['rỗng','mảnh bên phải Thần rừng','có tổ chim'][i]}: vết khắc bị bong một mảng vỏ hình ${SH[i]}.`);return}
+    if(S.sel==='long'&&S.ff===3){if(!S.carve[i]){S.carve[i]=true;sfx('chime');note(`Vết khắc ${c.n} vạch: «${c.txt}»`)}say(`Dưới ánh đom đóm, vết khắc hiện rõ: <b>${c.n} vạch</b>, rồi dòng chữ «<i>${c.txt}</i>».`,5000);
       if(S.carve.every(Boolean)&&!S.said.lyric){S.said.lyric=1;setTimeout(()=>{say('Ghép ba vết khắc theo số vạch, bạn đọc được một câu ru: «<b>Rừng ơi · ngủ đi · trăng về</b>».',6000);note('Câu ru của rừng (ghép theo 1, 2, 3 vạch): <b>Rừng ơi · ngủ đi · trăng về</b>.')},1500)}return}
     say(S.carve[i]?`Vết khắc ${c.n} vạch: «${c.txt}».`:S.sel==='long'?'Ánh lồng đèn còn yếu quá, chưa đọc rõ. Cần đủ <b>ba chú đom đóm</b> trong lồng.':'Thân cây có vài vạch khắc thẳng, rồi những nét chữ mờ. Tối quá, không đọc được. <b>Cầm lồng đèn sáng rồi bấm vào vết khắc</b> để soi.',5200);return}
-  if(/^b\d$/.test(id)){if(S.box)return;const i=+id[1];S.slots[i]=(S.slots[i]+1)%4;sfx('click');if(S.slots.every((v,k)=>v===BOXANS[k]))setTimeout(()=>{S.box=true;S.boxT=T;sfx('unlock');say('Bốn ô hoa khớp thứ tự. Nắp hộp bật mở: bên trong là <b>một chiếc kèn lá</b>.',5000)},350);return}
+  if(/^b\d$/.test(id)){if(S.box)return;const i=+id[1];S.slots[i]=(S.slots[i]+1)%4;sfx('click');if(S.slots.every((v,k)=>v===BOXANS[k]))setTimeout(()=>{if(S.box||!S.slots.every((v,k)=>v===BOXANS[k]))return;S.box=true;S.boxT=T;sfx('unlock');say('Bốn ô hoa khớp thứ tự. Nắp hộp bật mở: bên trong là <b>một chiếc kèn lá</b>.',5000)},350);return}
+  if(/^sp\d$/.test(id)){const i=+id[2],p=SPOTS[i],SZ=['nhỏ','vừa','lớn'];if(/^da\d$/.test(S.sel)){const j=+S.sel[2];if(j===p.sz){S.placed[i]=true;drop(S.sel);sfx('splash');const left=3-S.placed.filter(Boolean).length;if(!left){S.crossed=true;setTimeout(()=>say('Lối đá kê đã liền. Bạn nhón chân bước qua suối, ra tới tảng đá phẳng.',5000),500)}else say(`Hòn đá vừa khít vòng rêu. Còn ${left} chỗ.`);return}
+    say(`Hòn đá ${SZ[j]} ${j<p.sz?'nhỏ quá, lọt thỏm':'to quá, không vừa'} vòng rêu này.`);return}say('Một vòng rêu tròn dưới đáy suối, dấu của hòn đá kê từng nằm đây. Vòng này cỡ <b>'+SZ[p.sz]+'</b>.',4800);return}
   switch(id){
   case 'sun':if(S.tl!==null&&T-S.tl<10)return;S.tl=T;sfx('dusk');say('Bạn đứng nhìn mặt trời lặn dần. Bóng cây cổ thụ bên phải đổ dài qua khoảng rừng… và những bông hoa khép lại theo bóng.',7000);
     setTimeout(()=>{note('Khi bóng chiều đổ qua khoảng rừng, hoa khép lần lượt: <b>Đỏ → Tím → Trắng → Vàng</b>.');S.sawTL=true},7200);break;
@@ -509,8 +547,13 @@ function act(id){const sel=S.sel;
   case 'dao':S.knife=true;give('dao');say('Con dao rựa nhỏ cắm trên gốc cây có vết rìu cũ, của người tiều phu nào đó bỏ lại khi rừng chìm vào giấc ngủ.');break;
   case 'stumpI':say('Gốc cây bị đốn đã lâu. Vết rìu đã đen lại.');break;
   case 'sen':if(S.f1){say('Dưới lá sen chỉ còn nước đọng.');return}if(!S.lantern){say('Dưới mép lá sen le lói ánh xanh… một chú đom đóm ngủ. Bạn cần thứ gì để đựng nó.');return}S.sen=true;addFF(1,'Bạn lật lá sen. Một chú đom đóm đang ngủ trên mặt nước. Bạn khẽ thả nó vào lồng.');break;
-  case 'mirror':S.mirror=true;give('guong');say('Một <b>mảnh gương vỡ</b> kẹt giữa hai tảng đá, lóe lên mỗi khi nắng chiều chạm tới. Ai đó đánh rơi đã lâu.');break;
-  case 'bush':if(S.f2){say('Bụi hoa mười giờ nở rực rỡ.');return}if(!S.bloom){if(sel==='guong'){S.bloom=true;S.bloomT=T;sfx('bloom');say('Bạn nghiêng mảnh gương bắt tia nắng cuối ngày, hắt vào bụi hoa. Từng bông hoa mười giờ hé nở…',5000);if(S.lantern)setTimeout(()=>addFF(2,'Trong lòng bông hoa lớn nhất, một chú đom đóm cựa mình. Bạn thả nó vào lồng.'),1800);return}
+  case 'mirror':S.mirror=true;give('guong');say('Bạn nhặt <b>mảnh gương vỡ</b> trên tảng đá phẳng. Nó lóe lên mỗi khi nắng chiều chạm tới. Ai đó đánh rơi đã lâu.');break;
+  case 'flat':say('Mảnh gương lóe sáng trên tảng đá phẳng giữa suối. Nước sâu và lạnh. Lối đá kê ra đó thiếu <b>ba hòn</b>: dưới đáy chỉ còn ba vòng rêu tròn, to nhỏ khác nhau.',6000);note('Lối đá kê qua suối thiếu ba hòn; dưới đáy còn ba vòng rêu to nhỏ khác nhau.');break;
+  case 'pile':S.stones=true;['da0','da1','da2'].forEach(give);say('Ba hòn đá cuội đóng rêu một mặt, chồng bên bờ suối: một <b>nhỏ</b>, một <b>vừa</b>, một <b>lớn</b>. Có lẽ là đá kê bị nước cuốn lên bờ.',5600);break;
+  case 'bark1':S.got[1]=true;give('vo1');say('Chim đã tha một <b>mảnh vỏ cây hình bán nguyệt</b> về lót tổ. Trên mặt vỏ có vài nét khắc dở. Bạn khẽ rút ra, chim vẫn ngủ say.',5600);break;
+  case 'bark2':S.got[2]=true;give('vo2');say('Cạnh chỗ mảnh gương có một <b>mảnh vỏ cây hình chữ nhật</b>, nước suối cuốn tới đây. Mặt vỏ có nét khắc.',5200);break;
+  case 'fern':if(!S.fern){S.fern=true;sfx('whoosh');say('Bạn vạch bụi dương xỉ cạnh gốc cây… dưới gốc có một <b>mảnh vỏ cây hình tam giác</b>, khắc dở vài nét.',5200);return}S.got[0]=true;give('vo0');say('Bạn nhặt mảnh vỏ cây hình tam giác.');break;
+  case 'bush':if(S.f2){say('Bụi hoa mười giờ nở rực rỡ.');return}if(S.f2wait){say('Hoa đang hé nở… chú đom đóm bên trong sắp tỉnh.');return}if(!S.bloom){if(sel==='guong'){S.bloom=true;S.bloomT=T;sfx('bloom');say('Bạn nghiêng mảnh gương bắt tia nắng cuối ngày, hắt vào bụi hoa. Từng bông hoa mười giờ hé nở…',5000);if(S.lantern){S.f2wait=true;setTimeout(()=>{S.f2wait=false;addFF(2,'Trong lòng bông hoa lớn nhất, một chú đom đóm cựa mình. Bạn thả nó vào lồng.')},1800)}return}
       say('Bụi hoa mười giờ khép chặt. Hoa này chỉ nở khi có nắng, mà nắng đã xuống thấp, không còn chạm tới đây.');return}if(!S.lantern){say('Trong lòng hoa có một chú đom đóm. Bạn cần thứ gì để đựng.');return}addFF(2,'Bạn thả chú đom đóm trong lòng hoa vào lồng.');break;
   case 'hole':if(S.f3){say('Hốc cây trống, ấm hơi rêu.');return}if(sel==='long'){if(S.ff>=2){addFF(3,'Ánh sáng hai chú đom đóm soi vào hốc cây… chú thứ ba đang ngủ dưới đáy. Lồng đèn rêu bừng sáng!');return}say('Ánh lồng còn yếu quá, chưa soi tới đáy hốc.');return}say('Hốc cây tối om. Không nhìn thấy gì.');break;
   case 'boxI':if(!S.box){say('Một chiếc hộp vỏ cây dưới chân Thần rừng. Bốn ô hình hoa xoay được. Trên nắp khắc: «<i>Hoa khép theo bóng chiều</i>».',5500);note('Hộp dưới chân Thần rừng: bốn ô hoa, nắp khắc «Hoa khép theo bóng chiều».');return}
@@ -521,19 +564,28 @@ function act(id){const sel=S.sel;
   case 'birdN':say(S.song?'Tổ chim trống. Chú chim đã bay đi.':'Một chú chim ngủ say trong tổ.');break;
   }}
 function arrive(v){const once=(k,t,ms)=>{if(!S.said[k]){S.said[k]=1;say(t,ms)}};
-  if(/^carve\d$/.test(v)&&S.sel==='long'&&S.ff===3){setTimeout(()=>{if(S.view===v)act('cv'+v[5])},700);return}
+  if(/^carve\d$/.test(v)&&S.sel==='long'&&S.ff===3&&S.bark[+v[5]]){setTimeout(()=>{if(S.view===v)act('cv'+v[5])},700);return}
   if(v==='hand')once('hand','Thần rừng ngủ đứng giữa khoảng rừng, rêu đã leo lên vạt áo. Đom đóm vàng lượn quanh bàn tay nàng.',5500);
-  if(v==='hollow')once('hollow','Một hốc cây lớn, tối om.');if(v==='box')once('box','Hộp vỏ cây, bốn ô hình hoa: đỏ, tím, trắng, vàng. Nắp khắc «Hoa khép theo bóng chiều».',5000);
+  if(v==='hollow')once('hollow','Một hốc cây lớn, tối om.');if(v==='rocks'&&!S.crossed)once('rocks','Bờ suối. Giữa dòng có một tảng đá phẳng, trên đó có thứ gì lóe sáng. Lối đá kê ra đó bị đứt mất ba hòn.',5600);if(v==='box')once('box','Hộp vỏ cây, bốn ô hình hoa: đỏ, tím, trắng, vàng. Nắp khắc «Hoa khép theo bóng chiều».',5000);
   if(v==='bush'&&!S.bloom)once('bush','Bụi hoa mười giờ khép chặt. Hoa này chỉ nở khi có nắng.')}
 // ---- kèn lá
 const TONEF={a:392,'à':330,'á':494,'ả':349,'ã':440,'ạ':294};let KS=[];
-function openKen(){KS=[];$('ken').style.display='flex';$('ken').querySelector('.seq').textContent='';}
-document.querySelectorAll('#ken .holes button').forEach(b=>b.onclick=()=>{const n=b.dataset.n;sfx('leaf',TONEF[n]);KS.push(n);if(KS.length>6)KS.shift();$('ken').querySelector('.seq').textContent=KS.join(' ');
-  if(!S.song&&KS.join()===SONG.join()){setTimeout(()=>{$('ken').style.display='none';S.song=true;S.songT=T;sfx('wake');say('Tiếng kèn lá ngân khắp khoảng rừng… Con suối chảy lại róc rách. Chú chim trong tổ vụt bay lên. Thần rừng khẽ khum bàn tay, như đang đợi điều gì.',7000);goal('Đặt lồng đèn rêu vào tay Thần rừng.');note('Rừng đã tỉnh. Thần rừng khum bàn tay như đang đợi.')},600)}});
+function kenClue(){const known=CARVE.map((c,i)=>S.carve[i]?c.txt:'…');const all=S.carve.every(Boolean);
+  return 'Nắp hộp khắc: «Muốn đánh thức, hãy hát <b>ngược</b> lời ru. Mỗi dấu một nốt.»'+(all?`<span class="lyr">Lời ru: ${known.join(' · ')}</span>`:`<span class="lyr">Lời ru: ${known.join(' · ')}</span><span style="font-size:.9em">Bạn chưa đọc đủ ba vết khắc trên thân cây.</span>`)}
+function kenSlots(bad){const sl=$('ken').querySelector('.slots');sl.className='slots'+(bad?' bad':'');sl.innerHTML=Array.from({length:6},(_,i)=>`<span class="${KS[i]?'on':''}">${KS[i]||''}</span>`).join('')}
+let kenLock=false;
+function openKen(){KS=[];kenLock=false;$('ken').querySelector('.clue').innerHTML=kenClue();$('ken').querySelector('.fb').textContent='';kenSlots();$('ken').style.display='flex';sfx('paper')}
+$('ken').querySelector('.redo').onclick=()=>{if(kenLock)return;KS=[];$('ken').querySelector('.fb').textContent='';kenSlots()};
+document.querySelectorAll('#ken .holes button').forEach(b=>b.onclick=()=>{if(kenLock||S.song)return;const n=b.dataset.n;sfx('leaf',TONEF[n]);KS.push(n);$('ken').querySelector('.fb').textContent='';kenSlots();if(KS.length<6)return;
+  if(KS.join()===SONG.join()){kenLock=true;$('ken').querySelector('.fb').textContent='Tiếng kèn ngân dài khắp khoảng rừng…';setTimeout(()=>{$('ken').style.display='none';S.song=true;S.songT=T;sfx('wake');say('Tiếng kèn lá ngân khắp khoảng rừng… Con suối chảy lại róc rách. Chú chim trong tổ vụt bay lên. Thần rừng khẽ khum bàn tay, như đang đợi điều gì.',7000);goal('Đặt lồng đèn rêu vào tay Thần rừng.');note('Rừng đã tỉnh. Thần rừng khum bàn tay như đang đợi.')},900);return}
+  kenLock=true;kenSlots(true);$('ken').querySelector('.fb').textContent=S.carve.every(Boolean)?'Tiếng kèn ngân lên rồi tắt. Rừng vẫn ngủ… Thử đọc ngược lời ru, mỗi chữ lấy dấu thanh của nó.':'Tiếng kèn ngân lên rồi tắt. Có lẽ phải đọc đủ câu ru trên ba thân cây trước đã.';
+  setTimeout(()=>{KS=[];kenLock=false;kenSlots()},1600)});
 // ---- hints: the golden firefly shows the way
-function stage(){if(!S.knife)return'knife';if(!S.vines)return'vines';if(!S.lantern)return'lantern';if(!S.f1)return'f1';if(!S.mirror&&!S.f2)return'mirror';if(!S.f2)return'f2';if(!S.f3)return'f3';if(!S.carve.every(Boolean))return'carve';if(!S.box)return S.sawTL?'box':'sun';if(!S.ken)return'ken';if(!S.song)return'song';return'hand'}
-const HINT={knife:[[640,800],'Đom đóm vàng lượn quanh gốc cây bị đốn.','Lấy con dao rựa cắm trên gốc cây.'],vines:[[600,480],'Đom đóm vàng đậu lên chiếc lồng đèn bị dây leo quấn.','Cầm dao, bấm vào đám dây leo quanh lồng đèn.'],lantern:[[600,480],'Lồng đèn đã gỡ được.','Bấm vào lồng đèn để lấy.'],
-  f1:[[460,950],'Đom đóm vàng chao xuống vũng nước có lá sen.','Phóng to vũng nước, lật lá sen.'],mirror:[[1560,960],'Có thứ gì lóe sáng giữa hai tảng đá bên bờ suối.','Nhặt mảnh gương vỡ ở bờ suối.'],f2:[[1262,870],'Bụi hoa mười giờ chỉ nở khi có nắng.','Dùng mảnh gương với bụi hoa để hắt nắng vào.'],
+function stage(){if(!S.knife)return'knife';if(!S.vines)return'vines';if(!S.lantern)return'lantern';if(!S.f1)return'f1';if(!S.mirror&&!S.f2)return S.crossed?'mirror':S.stones?'place':'pile';if(!S.f2)return'f2';if(!S.f3)return'f3';if(!S.bark.every(Boolean)){const need=[0,1,2].find(i=>!S.bark[i]&&!S.got[i]);if(need!==undefined)return'b'+need;return'fit'}if(!S.carve.every(Boolean))return'carve';if(!S.box)return S.sawTL?'box':'sun';if(!S.ken)return'ken';if(!S.song)return'song';return'hand'}
+const HINT={pile:[PILE,'Mảnh gương lóe sáng giữa suối, nhưng lối đá kê bị đứt.','Nhặt ba hòn đá cuội chồng bên bờ suối.'],place:[[SPOTS[1].x,SPOTS[1].y],'Mỗi vòng rêu dưới đáy suối là dấu một hòn đá kê, to nhỏ khác nhau.','Cầm hòn đá đúng cỡ rồi bấm vào vòng rêu: gần bờ cỡ vừa, giữa cỡ lớn, xa nhất cỡ nhỏ.'],
+  b0:[FERNB,'Có thứ gì nằm dưới bụi dương xỉ cạnh gốc cây bị đốn.','Phóng to gốc cây, vạch bụi dương xỉ bên phải để lấy mảnh vỏ tam giác.'],b1:[NEST,'Chim hay tha vỏ cây về lót tổ.','Phóng to tổ chim trên cây bên phải, rút mảnh vỏ bán nguyệt.'],b2:[FLAT,'Nước suối cuốn một mảnh vỏ ra tảng đá giữa dòng.','Qua lối đá kê, nhặt mảnh vỏ chữ nhật cạnh chỗ mảnh gương.'],
+  fit:[[CARVE[0].x,CARVE[0].y],'Ba mảnh vỏ có ba hình khác nhau, khớp ba chỗ bong.','Cầm mảnh vỏ, bấm vào chỗ bong cùng hình: tam giác ở cây rỗng, bán nguyệt ở cây mảnh, chữ nhật ở cây có tổ chim.'],knife:[[640,800],'Đom đóm vàng lượn quanh gốc cây bị đốn.','Lấy con dao rựa cắm trên gốc cây.'],vines:[[600,480],'Đom đóm vàng đậu lên chiếc lồng đèn bị dây leo quấn.','Cầm dao, bấm vào đám dây leo quanh lồng đèn.'],lantern:[[600,480],'Lồng đèn đã gỡ được.','Bấm vào lồng đèn để lấy.'],
+  f1:[[460,950],'Đom đóm vàng chao xuống vũng nước có lá sen.','Phóng to vũng nước, lật lá sen.'],mirror:[MIRROR,'Mảnh gương nằm trên tảng đá phẳng giữa suối.','Bấm vào mảnh gương để nhặt.'],f2:[[1262,870],'Bụi hoa mười giờ chỉ nở khi có nắng.','Dùng mảnh gương với bụi hoa để hắt nắng vào.'],
   f3:[[290,620],'Đom đóm vàng bay vào hốc cây tối.','Khi lồng đã có hai đom đóm, cầm lồng và bấm vào hốc cây.'],carve:[[330,400],'Trên ba thân cây có vết khắc mờ.','Cầm lồng đèn sáng, bấm vào vết khắc trên cây rỗng, cây mảnh bên phải Thần rừng và cây có tổ chim.'],
   sun:[[1480,700],'«Hoa khép theo bóng chiều»… Đom đóm vàng bay về phía mặt trời đang lặn.','Bấm vào mặt trời để xem bóng chiều đổ qua, nhớ thứ tự hoa khép.'],box:[[1088,890],'Đom đóm vàng đậu trên chiếc hộp dưới chân Thần rừng.','Xoay bốn ô theo thứ tự hoa khép: Đỏ, Tím, Trắng, Vàng.'],ken:[[1088,890],'Hộp đã mở.','Lấy kèn lá trong hộp.'],
   song:[[1010,520],'Muốn đánh thức, hát ngược lời ru. Mỗi dấu thanh là một nốt.','Lời ru: Rừng ơi · ngủ đi · trăng về. Đọc ngược từng chữ: về, trăng, đi, ngủ, ơi, Rừng → thổi <b>à a a ả a à</b>.'],hand:[[1080,560],'Đom đóm vàng lượn quanh bàn tay khum của Thần rừng.','Cầm lồng đèn rêu, bấm vào bàn tay Thần rừng.']};

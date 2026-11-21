@@ -599,10 +599,10 @@ function act(id){const sel=S.sel;
   case 'farF':say(S.lit?'Ánh lấp lánh thứ hai ở xa, ngoài tầm dây câu. Phải ra tận đầu cầu.':'Mặt nước đen kịt.');break;
   case 'fishF':catchAt(1);break;
   }}
-function catchAt(k){const done=k?S.key:S.base;if(done){say('Chỗ này câu rồi.');return}
+function catchAt(k){if(S.catching){return}const done=k?S.key:S.base;if(done){say('Chỗ này câu rồi.');return}
   if(S.sel!=='cancau'){if(S.sel==='can'||S.sel==='canday'){say(S.sel==='can'?'Cần chưa có dây.':'Cần có dây nhưng chưa có lưỡi.');return}say(S.lit?(k?'Dưới đáy có thứ gì lấp lánh. Cần thứ gì để câu lên.':'Có gì đó lấp lánh dưới đáy, ngay cạnh cầu. Cần thứ gì để câu lên.'):'Nước đen kịt, không thấy gì dưới đáy.');return}
   if(!S.lit){say('Bạn thả câu vào nước đen. Không có gì cắn câu. Đáy hồ tối quá, không biết thả vào đâu.',5000);return}
-  const [x,y]=k?GLF:GLN;S.fish={x,y,t:T};sfx('splash');setTimeout(()=>{sfx('reel');if(k){S.key=true;give('chia');paper('<p class="hand">Lưỡi câu móc lên một <b>chiếc chìa khóa đồng</b> xanh rêu. Trên cán khắc ba chữ:</p><p class="hand" style="font-size:1.25em;text-align:center">«Nhà gốc cây»</p>')}
+  const [x,y]=k?GLF:GLN;S.catching=true;S.fish={x,y,t:T};sfx('splash');setTimeout(()=>{S.catching=false;sfx('reel');if(k){S.key=true;give('chia');paper('<p class="hand">Lưỡi câu móc lên một <b>chiếc chìa khóa đồng</b> xanh rêu. Trên cán khắc ba chữ:</p><p class="hand" style="font-size:1.25em;text-align:center">«Nhà gốc cây»</p>')}
     else{S.base=true;give('de');paper('<p class="hand">Bạn câu lên một <b>mảnh đế đèn bão</b> bằng đồng, méo mó như từng bị quật vào đá. Mặt dưới khắc bốn chữ số:</p><p class="hand" style="font-size:1.35em;text-align:center">1966</p>');note('Mảnh đế đèn bão khắc «1966», câu được dưới đáy Hồ Gương.')}
     const fin=()=>{if(S.base&&S.key)startEnding();else goal(S.base?'Ra đầu cầu, câu vật lấp lánh còn lại.':'Câu vật lấp lánh gần giữa cầu.')};
     const wait=()=>{if(modal()){setTimeout(wait,300);return}if(!k){S.mem={k:1,t:T};seq(['Mặt nước gợn lên. Trong làn nước sáng, <b>hai đứa trẻ</b> nắm tay nhau chạy giữa mưa bão.',['spirit','«Hai đứa… Sao ta thấy quen đến vậy?»']],fin)}else fin()};setTimeout(wait,400)},1300)}
